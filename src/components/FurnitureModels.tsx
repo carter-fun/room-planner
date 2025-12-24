@@ -534,10 +534,10 @@ function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<Furnitu
         <sphereGeometry args={[0.008, 8, 8]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
-      {/* Smile - wide crescent shape below eyes, smaller to show yellow */}
-      <mesh position={[0, puffHeight / 2 + centerRadius * 0.2, centerRadius * 0.95]} rotation={[0.5, 0, 0]}>
-        <sphereGeometry args={[0.035, 16, 16, 0, Math.PI * 2, Math.PI * 0.1, Math.PI * 0.5]} />
-        <meshStandardMaterial color="#AA0033" roughness={0.5} />
+      {/* Smile - solid red half-circle below eyes */}
+      <mesh position={[0, puffHeight / 2 + centerRadius * 0.15, centerRadius * 1.05]} rotation={[0.4, 0, 0]}>
+        <circleGeometry args={[0.045, 32, Math.PI, Math.PI]} />
+        <meshStandardMaterial color="#AA0033" roughness={0.5} side={2} />
       </mesh>
     </group>
   );
