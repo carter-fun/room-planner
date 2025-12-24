@@ -517,19 +517,24 @@ function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<Furnitu
       
       {/* Smiley face on center */}
       {/* Left eye */}
-      <mesh position={[-0.025, puffHeight / 2 + centerRadius * 0.7, centerRadius * 0.3]}>
-        <sphereGeometry args={[0.012, 8, 8]} />
+      <mesh position={[-0.022, puffHeight / 2 + centerRadius * 0.6, centerRadius * 0.6]}>
+        <sphereGeometry args={[0.01, 8, 8]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
       {/* Right eye */}
-      <mesh position={[0.025, puffHeight / 2 + centerRadius * 0.7, centerRadius * 0.3]}>
-        <sphereGeometry args={[0.012, 8, 8]} />
+      <mesh position={[0.022, puffHeight / 2 + centerRadius * 0.6, centerRadius * 0.6]}>
+        <sphereGeometry args={[0.01, 8, 8]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
-      {/* Smile/mouth - red */}
-      <mesh position={[0, puffHeight / 2 + centerRadius * 0.3, centerRadius * 0.5]}>
-        <sphereGeometry args={[0.035, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#CC0000" roughness={0.6} />
+      {/* Big open mouth - wide red oval */}
+      <mesh position={[0, puffHeight / 2 + centerRadius * 0.1, centerRadius * 0.65]} rotation={[0.3, 0, 0]}>
+        <sphereGeometry args={[0.04, 16, 16, 0, Math.PI * 2, 0, Math.PI]} />
+        <meshStandardMaterial color="#CC0000" roughness={0.5} />
+      </mesh>
+      {/* Inner mouth dark */}
+      <mesh position={[0, puffHeight / 2 + centerRadius * 0.05, centerRadius * 0.62]} rotation={[0.3, 0, 0]}>
+        <sphereGeometry args={[0.025, 12, 12, 0, Math.PI * 2, 0, Math.PI]} />
+        <meshBasicMaterial color="#660000" />
       </mesh>
     </group>
   );
