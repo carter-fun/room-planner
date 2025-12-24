@@ -433,8 +433,8 @@ function GojoMangaModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMod
 function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { height } = dimensions;
   
-  const grey = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#333333';
-  const darkGrey = isSelected ? '#005ACC' : isHovered ? '#4AA8DA' : '#222222';
+  const grey = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#7a7a7a';
+  const darkGrey = isSelected ? '#005ACC' : isHovered ? '#4AA8DA' : '#4a4a4a';
   const white = isSelected ? '#99CCFF' : isHovered ? '#AADDFF' : '#f0f0f0';
   
   const s = height * 1.2; // Scale factor - even bigger!
