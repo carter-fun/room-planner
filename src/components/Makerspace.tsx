@@ -15,7 +15,7 @@ import {
 import { processVideoToGlb, validateLumaApiKey } from '@/lib/lumaApi';
 import type { DetectedItem, RoomAnalysis } from '@/app/api/analyze-room/route';
 
-type TabType = 'library' | 'upload' | 'luma' | 'experiment' | 'settings';
+type TabType = 'library' | 'experiment' | 'settings';
 
 export function Makerspace() {
   const [activeTab, setActiveTab] = useState<TabType>('library');
@@ -636,9 +636,7 @@ export function Makerspace() {
       <div className="flex p-2 gap-1 border-b border-white/20 flex-wrap">
         {([
           { id: 'library' as const, label: 'Library' },
-          { id: 'upload' as const, label: 'Upload' },
-          { id: 'experiment' as const, label: '🧪 Photo AI' },
-          { id: 'luma' as const, label: 'Luma' },
+          { id: 'experiment' as const, label: '📷 Photo AI' },
           { id: 'settings' as const, label: '⚙️' },
         ]).map((tab) => (
           <button
@@ -764,134 +762,8 @@ export function Makerspace() {
             </div>
           </div>
         )}
-        
-        {/* Upload Tab */}
-        {activeTab === 'upload' && (
-          <div className="space-y-4">
-            {/* Drop Zone */}
-            <div
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
-                isDragging
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400 hover:bg-white/50'
-              }`}
-            >
-              <div className="text-4xl mb-3">📁</div>
-              <p className="text-gray-700 font-medium">
-                {isDragging ? 'Drop files here' : 'Drag & drop GLB/GLTF files'}
-              </p>
-              <p className="text-gray-400 text-sm mt-1">or click to browse</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".glb,.gltf"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-            
-            {/* Progress */}
-            {uploadProgress && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-blue-700">{uploadProgress}</span>
-                </div>
-              </div>
-            )}
-            
-            {/* Instructions */}
-            <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-white/50">
-              <h4 className="font-medium text-gray-800 mb-2">Supported Formats</h4>
-              <ul className="text-sm text-gray-500 space-y-1">
-                <li>• <strong>GLB</strong> - Binary glTF (recommended)</li>
-                <li>• <strong>GLTF</strong> - JSON-based 3D format</li>
-              </ul>
-              <p className="text-xs text-gray-400 mt-3">
-                Tip: Export from Polycam, Blender, or any 3D software as GLB for best results.
-              </p>
-            </div>
-          </div>
-        )}
-        
-        {/* Luma AI Tab */}
-        {activeTab === 'luma' && (
-          <div className="space-y-4">
-            {!lumaApiKey ? (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                <p className="text-yellow-700 text-sm mb-2">
-                  <strong>API Key Required</strong>
-                </p>
-                <p className="text-yellow-600 text-sm">
-                  Go to Settings tab to add your Luma AI API key.
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Video Upload */}
-                <div
-                  onClick={() => !lumaProgress && videoInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
-                    lumaProgress
-                      ? 'border-blue-300 bg-blue-50 cursor-wait'
-                      : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50 cursor-pointer'
-                  }`}
-                >
-                  <div className="text-4xl mb-3">🎬</div>
-                  <p className="text-gray-700 font-medium">
-                    {lumaProgress ? lumaProgress.stage : 'Upload a video to convert to 3D'}
-                  </p>
-                  {lumaProgress ? (
-                    <div className="mt-4">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-500 h-2 rounded-full transition-all"
-                          style={{ width: `${lumaProgress.progress}%` }}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {Math.round(lumaProgress.progress)}%
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-gray-400 text-sm mt-1">
-                      Walk around an object or room while recording
-                    </p>
-                  )}
-                  <input
-                    ref={videoInputRef}
-                    type="file"
-                    accept="video/*"
-                    onChange={handleVideoUpload}
-                    disabled={!!lumaProgress}
-                    className="hidden"
-                  />
-                </div>
-                
-                {/* Instructions */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-white/50">
-                  <h4 className="font-medium text-gray-800 mb-2">How to Scan</h4>
-                  <ol className="text-sm text-gray-500 space-y-2">
-                    <li>1. Record a video walking around the object (30-60 seconds)</li>
-                    <li>2. Keep the object centered and well-lit</li>
-                    <li>3. Move slowly and avoid motion blur</li>
-                    <li>4. Upload and wait for Luma AI to process</li>
-                  </ol>
-                  <p className="text-xs text-gray-400 mt-3">
-                    Processing typically takes 5-15 minutes depending on video length.
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        )}
 
-        {/* Experiment Tab - Photo to Room */}
+        {/* Photo AI Tab */}
         {activeTab === 'experiment' && (
           <div className="space-y-4">
 
