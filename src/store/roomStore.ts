@@ -53,6 +53,9 @@ export type FurnitureType =
   | 'manga'
   | 'gojo_manga'
   | 'picture_frame'
+  // Designer Toys & Plushies
+  | 'kaws_figure'
+  | 'murakami_flower'
   | 'vase'
   | 'lamp_small'
   | 'clock'
@@ -235,6 +238,8 @@ export const FURNITURE_CATALOG: Record<FurnitureType, {
   book_stack: { name: 'Book Stack', dimensions: { width: 0.2, height: 0.15, depth: 0.15 }, defaultColor: '#654321', category: 'Small Items' },
   manga: { name: 'Manga', dimensions: { width: 0.11, height: 0.17, depth: 0.02 }, defaultColor: '#f0f0f0', category: 'Small Items' },
   gojo_manga: { name: 'Gojo Panel', dimensions: { width: 0.15, height: 0.21, depth: 0.02 }, defaultColor: '#ffffff', category: 'Small Items' },
+  kaws_figure: { name: 'KAWS Figure', dimensions: { width: 0.08, height: 0.15, depth: 0.05 }, defaultColor: '#808080', category: 'Small Items' },
+  murakami_flower: { name: 'Murakami Flower', dimensions: { width: 0.12, height: 0.04, depth: 0.12 }, defaultColor: '#FFD700', category: 'Small Items' },
   picture_frame: { name: 'Picture Frame', dimensions: { width: 0.2, height: 0.25, depth: 0.03 }, defaultColor: '#8B4513', category: 'Small Items' },
   vase: { name: 'Vase', dimensions: { width: 0.12, height: 0.25, depth: 0.12 }, defaultColor: '#4a90a4', category: 'Small Items' },
   lamp_small: { name: 'Small Lamp', dimensions: { width: 0.15, height: 0.3, depth: 0.15 }, defaultColor: '#f5deb3', category: 'Small Items' },

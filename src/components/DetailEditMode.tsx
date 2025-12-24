@@ -10,8 +10,8 @@ import { DraggableFurniture } from './DraggableFurniture';
 
 // Small items that can be placed on furniture
 const SMALL_ITEMS: FurnitureType[] = [
-  'book', 'book_stack', 'manga', 'gojo_manga', 'picture_frame', 
-  'vase', 'lamp_small', 'clock', 'trophy', 'plant'
+  'book', 'book_stack', 'manga', 'gojo_manga', 'kaws_figure', 'murakami_flower',
+  'picture_frame', 'vase', 'lamp_small', 'clock', 'trophy', 'plant'
 ];
 
 interface DetailSceneProps {
@@ -651,6 +651,8 @@ export function DetailEditMode() {
                     {type === 'book_stack' && '📚'}
                     {type === 'manga' && '📖'}
                     {type === 'gojo_manga' && '👁️'}
+                    {type === 'kaws_figure' && '🤖'}
+                    {type === 'murakami_flower' && '🌸'}
                     {type === 'picture_frame' && '🖼️'}
                     {type === 'vase' && '🏺'}
                     {type === 'lamp_small' && '💡'}

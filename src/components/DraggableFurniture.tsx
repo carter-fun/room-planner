@@ -62,7 +62,7 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
   
   // Check if this is a small item (books, etc.) that can be placed close together
   const isSmallItem = useCallback((type: string): boolean => {
-    const smallTypes = ['book', 'book_stack', 'manga', 'gojo_manga', 'picture_frame', 'vase', 'lamp_small', 'clock', 'trophy', 'plant'];
+    const smallTypes = ['book', 'book_stack', 'manga', 'gojo_manga', 'kaws_figure', 'murakami_flower', 'picture_frame', 'vase', 'lamp_small', 'clock', 'trophy', 'plant'];
     return smallTypes.includes(type);
   }, []);
   

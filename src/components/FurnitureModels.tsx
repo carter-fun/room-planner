@@ -429,6 +429,62 @@ function GojoMangaModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMod
   );
 }
 
+// KAWS Companion Figure
+function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
+  const { width, height, depth } = dimensions;
+  const texture = useTexture('/covers/kaws.png');
+  
+  return (
+    <group>
+      {/* Figure body */}
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial color="#808080" />
+      </mesh>
+      {/* KAWS image on front */}
+      <mesh position={[0, height / 2, depth / 2 + 0.001]}>
+        <planeGeometry args={[width * 0.95, height * 0.95]} />
+        <meshBasicMaterial map={texture} transparent />
+      </mesh>
+      {/* Selection highlight */}
+      {(isSelected || isHovered) && (
+        <mesh position={[0, height / 2, 0]}>
+          <boxGeometry args={[width * 1.05, height * 1.02, depth * 1.05]} />
+          <meshBasicMaterial color={isSelected ? '#007AFF' : '#5AC8FA'} transparent opacity={0.2} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+// Murakami Flower Plushie - flat rainbow flower
+function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
+  const { width, height, depth } = dimensions;
+  const texture = useTexture('/covers/murakami-flower.png');
+  
+  return (
+    <group>
+      {/* Flat plushie base */}
+      <mesh position={[0, height / 2, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[width / 2, width / 2, height, 32]} />
+        <meshStandardMaterial color="#FFD700" />
+      </mesh>
+      {/* Flower image on top */}
+      <mesh position={[0, height + 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[width * 0.98, depth * 0.98]} />
+        <meshBasicMaterial map={texture} transparent />
+      </mesh>
+      {/* Selection highlight */}
+      {(isSelected || isHovered) && (
+        <mesh position={[0, height / 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[width / 2 + 0.01, width / 2 + 0.01, height + 0.01, 32]} />
+          <meshBasicMaterial color={isSelected ? '#007AFF' : '#5AC8FA'} transparent opacity={0.3} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
 // Picture Frame model
 function PictureFrameModel({ dimensions, color, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { width, height, depth } = dimensions;
@@ -1225,6 +1281,10 @@ export function FurnitureModel({ type, dimensions, color, isSelected, isHovered,
       return <MangaModel {...bookProps} />;
     case 'gojo_manga':
       return <GojoMangaModel {...props} />;
+    case 'kaws_figure':
+      return <KawsFigureModel {...props} />;
+    case 'murakami_flower':
+      return <MurakamiFlowerModel {...props} />;
     case 'picture_frame':
       return <PictureFrameModel {...props} />;
     case 'vase':
