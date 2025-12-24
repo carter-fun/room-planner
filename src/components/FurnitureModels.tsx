@@ -521,38 +521,32 @@ function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<Furnitu
         />
       </mesh>
       
-      {/* Left eye - squashed white sphere */}
-      <mesh position={[-0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.85]} scale={[0.3, 0.4, 0.08]}>
-        <sphereGeometry args={[0.08, 32, 32]} />
+      {/* Left Eye White - high up, using CircleGeometry as sticker */}
+      <mesh position={[-0.028, puffHeight / 2 + centerRadius * 0.35, centerRadius * 0.92]} rotation={[0, -0.2, 0]}>
+        <circleGeometry args={[0.022, 64]} />
         <meshBasicMaterial color="white" />
       </mesh>
-      {/* Left pupil */}
-      <mesh position={[-0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.9]} scale={[0.15, 0.2, 0.05]}>
-        <sphereGeometry args={[0.08, 32, 32]} />
+      {/* Left Pupil */}
+      <mesh position={[-0.025, puffHeight / 2 + centerRadius * 0.45, centerRadius * 0.93]} rotation={[0, -0.2, 0]}>
+        <circleGeometry args={[0.008, 64]} />
         <meshBasicMaterial color="black" />
       </mesh>
       
-      {/* Right eye - squashed white sphere */}
-      <mesh position={[0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.85]} scale={[0.3, 0.4, 0.08]}>
-        <sphereGeometry args={[0.08, 32, 32]} />
+      {/* Right Eye White */}
+      <mesh position={[0.028, puffHeight / 2 + centerRadius * 0.35, centerRadius * 0.92]} rotation={[0, 0.2, 0]}>
+        <circleGeometry args={[0.022, 64]} />
         <meshBasicMaterial color="white" />
       </mesh>
-      {/* Right pupil */}
-      <mesh position={[0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.9]} scale={[0.15, 0.2, 0.05]}>
-        <sphereGeometry args={[0.08, 32, 32]} />
+      {/* Right Pupil */}
+      <mesh position={[0.025, puffHeight / 2 + centerRadius * 0.45, centerRadius * 0.93]} rotation={[0, 0.2, 0]}>
+        <circleGeometry args={[0.008, 64]} />
         <meshBasicMaterial color="black" />
       </mesh>
       
-      {/* Mouth - wide squashed red sphere */}
-      <mesh position={[0, puffHeight / 2 + centerRadius * -0.1, centerRadius * 0.85]} scale={[0.8, 0.5, 0.1]}>
-        <sphereGeometry args={[0.06, 32, 32]} />
-        <meshPhysicalMaterial 
-          color="#B03060"
-          roughness={0.8}
-          sheen={0.5}
-          sheenColor="white"
-          sheenRoughness={0.5}
-        />
+      {/* Mouth - half circle "D" shape using CircleGeometry with thetaLength */}
+      <mesh position={[0, puffHeight / 2 - centerRadius * 0.15, centerRadius * 0.95]} rotation={[0, 0, Math.PI]}>
+        <circleGeometry args={[0.038, 64, 0, Math.PI]} />
+        <meshBasicMaterial color="#A93226" />
       </mesh>
     </group>
   );
