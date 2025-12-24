@@ -10,7 +10,7 @@ import { DraggableFurniture } from './DraggableFurniture';
 
 // Small items that can be placed on furniture
 const SMALL_ITEMS: FurnitureType[] = [
-  'book', 'book_stack', 'manga', 'picture_frame', 
+  'book', 'book_stack', 'manga', 'gojo_manga', 'picture_frame', 
   'vase', 'lamp_small', 'clock', 'trophy', 'plant'
 ];
 
@@ -650,6 +650,7 @@ export function DetailEditMode() {
                     {type === 'book' && '📕'}
                     {type === 'book_stack' && '📚'}
                     {type === 'manga' && '📖'}
+                    {type === 'gojo_manga' && '👁️'}
                     {type === 'picture_frame' && '🖼️'}
                     {type === 'vase' && '🏺'}
                     {type === 'lamp_small' && '💡'}
