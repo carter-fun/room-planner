@@ -9,6 +9,10 @@ import { FurnitureModel } from './FurnitureModels';
 import { FurnitureItem, useRoomStore } from '@/store/roomStore';
 import { playPlaceSound } from '@/lib/sounds';
 
+// Module-level variable to track which item is currently being dragged
+// This provides synchronous checking to prevent multiple items from being dragged
+let currentDraggingItemId: string | null = null;
+
 interface DraggableFurnitureProps {
   item: FurnitureItem;
 }
@@ -62,6 +66,15 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSelected, item.id, removeFurniture]);
+  
+  // Cleanup: release drag lock if this component unmounts while dragging
+  useEffect(() => {
+    return () => {
+      if (currentDraggingItemId === item.id) {
+        currentDraggingItemId = null;
+      }
+    };
+  }, [item.id]);
   
   // Check if this is a small item (books, etc.) that can be placed close together
   const isSmallItem = useCallback((type: string): boolean => {
@@ -271,26 +284,30 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
           (event as PointerEvent).stopPropagation?.();
         }
         
-        // If another item is already being dragged, don't start dragging this one
-        if (globalIsDragging) {
+        // SYNCHRONOUS check: If another item is already being dragged, skip this one
+        // This uses a module-level variable for immediate synchronous checking
+        if (currentDraggingItemId !== null && currentDraggingItemId !== item.id) {
           return memo;
         }
+        
+        // Claim this drag - set immediately before any async operations
+        currentDraggingItemId = item.id;
         
         setIsDragging(true);
         setGlobalDragging(true); // Disable camera controls
         setSelectedId(item.id);
         saveForUndo(); // Save state for undo
         // Store the starting position to revert to if placement is invalid
-        return { startPos: [...item.position] as [number, number, number] };
+        return { startPos: [...item.position] as [number, number, number], itemId: item.id };
       }
       
       if (!active) {
-        // Only process drop if this item was actually being dragged
-        if (memo?.startPos && isDragging) {
+        // Only process drop if THIS item was the one being dragged
+        if (memo?.itemId === item.id && currentDraggingItemId === item.id) {
           // On drop - check if we can place here
           const collision = checkCollision(item.position[0], item.position[1], item.position[2]);
           
-          if (collision) {
+          if (collision && memo?.startPos) {
             // Can't place here - revert to starting position
             updateFurniturePosition(item.id, memo.startPos);
           } else {
@@ -298,6 +315,8 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
             playPlaceSound();
           }
           
+          // Release the drag lock
+          currentDraggingItemId = null;
           setIsDragging(false);
           setGlobalDragging(false); // Re-enable camera controls
           setHasCollision(false);
@@ -305,8 +324,8 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
         return memo;
       }
       
-      // Only process movement if this item is being dragged
-      if (!isDragging || !memo?.startPos) {
+      // Only process movement if THIS item is being dragged
+      if (currentDraggingItemId !== item.id || !memo?.startPos) {
         return memo;
       }
       
@@ -376,14 +395,62 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     }
   }, [isDragging, item.id, setSelectedId]);
   
+  // Check if this object is the topmost (closest to camera) in the intersection
+  const isTopmostIntersection = useCallback((e: ThreeEvent<PointerEvent>): boolean => {
+    if (!groupRef.current || !e.intersections || e.intersections.length === 0) {
+      return true; // If we can't determine, allow the interaction
+    }
+    
+    // Find the first intersection that belongs to a furniture item (has our group as ancestor)
+    for (const intersection of e.intersections) {
+      let obj: THREE.Object3D | null = intersection.object;
+      while (obj) {
+        if (obj === groupRef.current) {
+          // This intersection belongs to us, and we're first = we're topmost
+          return true;
+        }
+        // Check if this object belongs to another draggable furniture group
+        if (obj.userData?.isFurnitureGroup && obj !== groupRef.current) {
+          // Another furniture item is in front of us
+          return false;
+        }
+        obj = obj.parent;
+      }
+    }
+    return true;
+  }, []);
+  
 // Use actual Y position from item
   const yPosition = item.position[1];
+
+  // Mark this group as a furniture group for intersection checking
+  useEffect(() => {
+    if (groupRef.current) {
+      groupRef.current.userData.isFurnitureGroup = true;
+      groupRef.current.userData.itemId = item.id;
+    }
+  }, [item.id]);
+
+  // Get the bind handlers and wrap onPointerDown to check intersection first
+  const bindHandlers = bind();
+  const wrappedHandlers = {
+    ...bindHandlers,
+    onPointerDown: (e: ThreeEvent<PointerEvent>) => {
+      // First check if we're the topmost intersection
+      if (!isTopmostIntersection(e)) {
+        return; // Don't process - another item is in front
+      }
+      e.stopPropagation();
+      // Then call the original bind handler
+      (bindHandlers as any).onPointerDown?.(e);
+    },
+  };
 
   return (
     <group
       ref={groupRef}
       position={[item.position[0], yPosition, item.position[2]]}
-      {...(bind() as any)}
+      {...(wrappedHandlers as any)}
       onClick={handleClick}
       onPointerOver={(e) => { e.stopPropagation(); setIsHovered(true); }}
       onPointerOut={() => setIsHovered(false)}
