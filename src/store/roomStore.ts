@@ -51,6 +51,7 @@ export type FurnitureType =
   | 'book'
   | 'book_stack'
   | 'manga'
+  | 'gojo_manga'
   | 'picture_frame'
   | 'vase'
   | 'lamp_small'
@@ -233,6 +234,7 @@ export const FURNITURE_CATALOG: Record<FurnitureType, {
   book: { name: 'Book', dimensions: { width: 0.15, height: 0.22, depth: 0.03 }, defaultColor: '#8B4513', category: 'Small Items' },
   book_stack: { name: 'Book Stack', dimensions: { width: 0.2, height: 0.15, depth: 0.15 }, defaultColor: '#654321', category: 'Small Items' },
   manga: { name: 'Manga', dimensions: { width: 0.11, height: 0.17, depth: 0.02 }, defaultColor: '#f0f0f0', category: 'Small Items' },
+  gojo_manga: { name: 'Gojo Panel', dimensions: { width: 0.15, height: 0.21, depth: 0.02 }, defaultColor: '#ffffff', category: 'Small Items' },
   picture_frame: { name: 'Picture Frame', dimensions: { width: 0.2, height: 0.25, depth: 0.03 }, defaultColor: '#8B4513', category: 'Small Items' },
   vase: { name: 'Vase', dimensions: { width: 0.12, height: 0.25, depth: 0.12 }, defaultColor: '#4a90a4', category: 'Small Items' },
   lamp_small: { name: 'Small Lamp', dimensions: { width: 0.15, height: 0.3, depth: 0.15 }, defaultColor: '#f5deb3', category: 'Small Items' },

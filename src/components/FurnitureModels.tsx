@@ -1,6 +1,7 @@
 'use client';
 
 import * as THREE from 'three';
+import { useTexture } from '@react-three/drei';
 import { FurnitureType, BookOrientation } from '@/store/roomStore';
 
 // Ghibli/cozy aesthetic constants - matte clay-like finish
@@ -390,6 +391,40 @@ function MangaModel({ dimensions, color, isSelected, isHovered, orientation = 'u
       <mesh position={[scaledDepth * 0.4, scaledHeight / 2, 0]} castShadow>
         <boxGeometry args={[scaledDepth * 0.1, scaledHeight * 0.95, scaledWidth * 0.95]} />
         <meshStandardMaterial color="#fffef5" />
+      </mesh>
+    </group>
+  );
+}
+
+// Gojo Death Panel - the iconic JJK manga panel
+function GojoMangaModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
+  const { width, height, depth } = dimensions;
+  const texture = useTexture('/covers/gojo-death.svg');
+  
+  // Frame color based on selection
+  const frameColor = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#1a1a1a';
+  
+  return (
+    <group>
+      {/* Manga panel body */}
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
+      {/* The panel image on front */}
+      <mesh position={[0, height / 2, depth / 2 + 0.001]}>
+        <planeGeometry args={[width * 0.95, height * 0.95]} />
+        <meshBasicMaterial map={texture} />
+      </mesh>
+      {/* Black border/frame */}
+      <mesh position={[0, height / 2, depth / 2 + 0.002]}>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial color={frameColor} transparent opacity={0} />
+      </mesh>
+      {/* Pages on side */}
+      <mesh position={[width / 2 + 0.001, height / 2, 0]}>
+        <boxGeometry args={[0.002, height * 0.95, depth * 0.9]} />
+        <meshStandardMaterial color="#f5f5f0" />
       </mesh>
     </group>
   );
@@ -1189,6 +1224,8 @@ export function FurnitureModel({ type, dimensions, color, isSelected, isHovered,
       return <BookStackModel {...bookProps} />;
     case 'manga':
       return <MangaModel {...bookProps} />;
+    case 'gojo_manga':
+      return <GojoMangaModel {...props} />;
     case 'picture_frame':
       return <PictureFrameModel {...props} />;
     case 'vase':

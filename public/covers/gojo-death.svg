@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420">
+  <!-- Background - white like manga page -->
+  <rect width="300" height="420" fill="#fff"/>
+  
+  <!-- Rocky/debris ground texture -->
+  <g fill="none" stroke="#000" stroke-width="0.5">
+    <path d="M0 280 Q30 275 60 282 Q90 278 120 285 Q150 275 180 280 Q210 283 240 278 Q270 282 300 280"/>
+    <path d="M0 290 Q40 285 80 292 Q120 288 160 293 Q200 286 240 291 Q280 287 300 290"/>
+    <ellipse cx="30" cy="350" rx="25" ry="15"/>
+    <ellipse cx="90" cy="370" rx="20" ry="12"/>
+    <ellipse cx="150" cy="340" rx="30" ry="18"/>
+    <ellipse cx="220" cy="360" rx="22" ry="14"/>
+    <ellipse cx="270" cy="345" rx="18" ry="11"/>
+    <path d="M10 320 L25 315 L20 330 Z"/>
+    <path d="M260 320 L275 318 L270 335 Z"/>
+  </g>
+  
+  <!-- Gojo's body - lying down, black cloak -->
+  <g>
+    <!-- Main black cloak/body mass -->
+    <path d="M40 180 
+             Q60 160 100 155 
+             Q140 150 180 160 
+             Q200 165 210 180
+             Q220 200 225 240
+             Q228 270 220 290
+             Q200 310 160 315
+             Q120 318 80 310
+             Q50 300 45 270
+             Q40 240 38 210
+             Z" 
+          fill="#0a0a0a"/>
+    
+    <!-- Cloak folds/details -->
+    <path d="M60 190 Q80 200 75 230" stroke="#333" stroke-width="2" fill="none"/>
+    <path d="M90 175 Q100 195 95 225" stroke="#333" stroke-width="1.5" fill="none"/>
+    <path d="M180 175 Q190 200 185 240" stroke="#333" stroke-width="2" fill="none"/>
+    
+    <!-- White highlights on cloak -->
+    <ellipse cx="70" cy="200" rx="4" ry="6" fill="#fff"/>
+    <ellipse cx="150" cy="190" rx="3" ry="5" fill="#fff"/>
+    <ellipse cx="195" cy="220" rx="4" ry="5" fill="#fff"/>
+  </g>
+  
+  <!-- Gojo's head - tilted back, bandaged/blindfold -->
+  <g>
+    <!-- Face/head shape -->
+    <ellipse cx="230" cy="170" rx="35" ry="45" fill="#f5f5f5" transform="rotate(25, 230, 170)"/>
+    
+    <!-- Hair - white/silver spiky -->
+    <path d="M200 130 Q210 110 225 115 Q235 105 250 112 Q265 108 270 125 Q280 118 278 140" 
+          fill="#e8e8e8" stroke="#999" stroke-width="0.5"/>
+    <path d="M205 135 Q215 125 225 130" stroke="#bbb" stroke-width="1" fill="none"/>
+    <path d="M240 120 Q250 115 258 122" stroke="#bbb" stroke-width="1" fill="none"/>
+    
+    <!-- Blindfold/bandage across eyes -->
+    <rect x="195" y="155" width="70" height="18" rx="3" fill="#1a1a1a" transform="rotate(25, 230, 165)"/>
+    
+    <!-- Peaceful expression - closed eyes implied by bandage -->
+    
+    <!-- Nose -->
+    <path d="M235 175 L238 185 L232 185" stroke="#aaa" stroke-width="0.8" fill="none"/>
+    
+    <!-- Mouth - slight peaceful expression -->
+    <path d="M225 195 Q235 198 245 195" stroke="#888" stroke-width="1" fill="none"/>
+    
+    <!-- Neck/collar area -->
+    <path d="M210 200 Q220 210 215 230" stroke="#ddd" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Sukuna's remains/curse energy in background - the grotesque form -->
+  <g opacity="0.3" fill="none" stroke="#000" stroke-width="0.8">
+    <path d="M250 80 Q280 60 300 70"/>
+    <path d="M260 90 Q290 85 300 95"/>
+    <circle cx="280" cy="50" r="15"/>
+    <circle cx="295" cy="65" r="8"/>
+    <path d="M270 40 Q285 30 295 35"/>
+  </g>
+  
+  <!-- Manga panel border -->
+  <rect x="2" y="2" width="296" height="416" fill="none" stroke="#000" stroke-width="3"/>
+  
+  <!-- Small JJK text in corner -->
+  <text x="15" y="405" font-family="Arial, sans-serif" font-size="8" fill="#666">JJK Ch.236</text>
+</svg>
+
