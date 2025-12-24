@@ -388,26 +388,40 @@ export const useRoomStore = create<RoomState>()(
       setDetailModeTarget: (id) => set({ detailModeTarget: id }),
       
       // Undo functionality - stores up to 20 previous states
-      undoStack: [],
+      undoStack: [] as FurnitureItem[][],
       canUndo: false,
       
-      saveForUndo: () => set((state) => {
+      saveForUndo: () => {
+        const state = get();
         // Deep clone the current furniture state
-        const snapshot = JSON.parse(JSON.stringify(state.furniture));
+        const snapshot = JSON.parse(JSON.stringify(state.furniture)) as FurnitureItem[];
+        
+        // Don't save if the state is identical to the last saved state
+        const lastSnapshot = state.undoStack[state.undoStack.length - 1];
+        if (lastSnapshot && JSON.stringify(lastSnapshot) === JSON.stringify(snapshot)) {
+          return; // Skip duplicate
+        }
+        
         const newStack = [...state.undoStack, snapshot].slice(-20); // Keep last 20 states
-        return { undoStack: newStack, canUndo: true };
-      }),
+        set({ undoStack: newStack, canUndo: true });
+      },
       
-      undo: () => set((state) => {
-        if (state.undoStack.length === 0) return state;
+      undo: () => {
+        const state = get();
+        if (state.undoStack.length === 0) return;
+        
         const newStack = [...state.undoStack];
         const previousState = newStack.pop();
-        return { 
-          furniture: previousState || state.furniture,
-          undoStack: newStack,
-          canUndo: newStack.length > 0,
-        };
-      }),
+        
+        if (previousState) {
+          set({ 
+            furniture: previousState,
+            undoStack: newStack,
+            canUndo: newStack.length > 0,
+            selectedId: null, // Clear selection on undo
+          });
+        }
+      },
       
       gridSize: 0.1, // 10cm grid (smoother movement)
       setGridSize: (size) => set({ gridSize: size }),
