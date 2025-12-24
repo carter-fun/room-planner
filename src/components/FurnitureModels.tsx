@@ -506,35 +506,38 @@ function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<Furnitu
         );
       })}
       
-      {/* Yellow center */}
+      {/* Yellow center - bigger to show more yellow */}
       <mesh position={[0, puffHeight / 2 + 0.01, 0]} castShadow receiveShadow>
-        <sphereGeometry args={[centerRadius, 20, 20]} />
+        <sphereGeometry args={[centerRadius * 1.3, 24, 24]} />
         <meshStandardMaterial 
-          color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#FFD700'} 
+          color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#FFE135'} 
           roughness={0.7}
         />
       </mesh>
       
       {/* Smiley face on center */}
-      {/* Left eye */}
-      <mesh position={[-0.022, puffHeight / 2 + centerRadius * 0.6, centerRadius * 0.6]}>
-        <sphereGeometry args={[0.01, 8, 8]} />
+      {/* Left eye - white with black pupil */}
+      <mesh position={[-0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.85]}>
+        <sphereGeometry args={[0.018, 12, 12]} />
+        <meshBasicMaterial color="#FFFFFF" />
+      </mesh>
+      <mesh position={[-0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.92]}>
+        <sphereGeometry args={[0.008, 8, 8]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
-      {/* Right eye */}
-      <mesh position={[0.022, puffHeight / 2 + centerRadius * 0.6, centerRadius * 0.6]}>
-        <sphereGeometry args={[0.01, 8, 8]} />
+      {/* Right eye - white with black pupil */}
+      <mesh position={[0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.85]}>
+        <sphereGeometry args={[0.018, 12, 12]} />
+        <meshBasicMaterial color="#FFFFFF" />
+      </mesh>
+      <mesh position={[0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.92]}>
+        <sphereGeometry args={[0.008, 8, 8]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
-      {/* Big open mouth - wide red oval */}
-      <mesh position={[0, puffHeight / 2 + centerRadius * 0.1, centerRadius * 0.65]} rotation={[0.3, 0, 0]}>
-        <sphereGeometry args={[0.04, 16, 16, 0, Math.PI * 2, 0, Math.PI]} />
-        <meshStandardMaterial color="#CC0000" roughness={0.5} />
-      </mesh>
-      {/* Inner mouth dark */}
-      <mesh position={[0, puffHeight / 2 + centerRadius * 0.05, centerRadius * 0.62]} rotation={[0.3, 0, 0]}>
-        <sphereGeometry args={[0.025, 12, 12, 0, Math.PI * 2, 0, Math.PI]} />
-        <meshBasicMaterial color="#660000" />
+      {/* Smile - wide crescent shape below eyes, smaller to show yellow */}
+      <mesh position={[0, puffHeight / 2 + centerRadius * 0.2, centerRadius * 0.95]} rotation={[0.5, 0, 0]}>
+        <sphereGeometry args={[0.035, 16, 16, 0, Math.PI * 2, Math.PI * 0.1, Math.PI * 0.5]} />
+        <meshStandardMaterial color="#AA0033" roughness={0.5} />
       </mesh>
     </group>
   );
