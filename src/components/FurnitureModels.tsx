@@ -457,25 +457,80 @@ function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMo
   );
 }
 
-// Murakami Flower Plushie - flat rainbow flower cushion
+// Murakami Flower Plushie - puffy 3D flower with colorful petals
 function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { width, height } = dimensions;
-  const texture = useTexture('/covers/murakami.png');
+  
+  // Rainbow petal colors matching the real Murakami flower
+  const petalColors = [
+    '#FF69B4', // Pink
+    '#FF0000', // Red  
+    '#FF8C00', // Orange
+    '#FFD700', // Yellow
+    '#90EE90', // Light green
+    '#228B22', // Green
+    '#00CED1', // Cyan
+    '#4169E1', // Blue
+    '#8A2BE2', // Purple
+    '#4B0082', // Indigo
+    '#2F2F2F', // Dark grey
+    '#FFE4B5', // Cream
+  ];
+  
+  const petalCount = 12;
+  const petalRadius = width * 0.22;
+  const centerRadius = width * 0.25;
+  const flowerRadius = width * 0.38;
+  const puffHeight = height * 0.8;
   
   return (
     <group>
-      {/* Just the flower image as a flat plane laying on surface */}
-      <mesh position={[0, height / 2, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow>
-        <planeGeometry args={[width, width]} />
-        <meshBasicMaterial map={texture} transparent side={2} />
+      {/* Petals arranged in a circle */}
+      {petalColors.map((color, i) => {
+        const angle = (i / petalCount) * Math.PI * 2;
+        const x = Math.cos(angle) * flowerRadius;
+        const z = Math.sin(angle) * flowerRadius;
+        return (
+          <mesh 
+            key={i} 
+            position={[x, puffHeight / 2, z]} 
+            castShadow 
+            receiveShadow
+          >
+            <sphereGeometry args={[petalRadius, 16, 16]} />
+            <meshStandardMaterial 
+              color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : color} 
+              roughness={0.8}
+            />
+          </mesh>
+        );
+      })}
+      
+      {/* Yellow center */}
+      <mesh position={[0, puffHeight / 2 + 0.01, 0]} castShadow receiveShadow>
+        <sphereGeometry args={[centerRadius, 20, 20]} />
+        <meshStandardMaterial 
+          color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#FFD700'} 
+          roughness={0.7}
+        />
       </mesh>
-      {/* Selection highlight */}
-      {(isSelected || isHovered) && (
-        <mesh position={[0, height / 2 + 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[width / 2 + 0.01, 32]} />
-          <meshBasicMaterial color={isSelected ? '#007AFF' : '#5AC8FA'} transparent opacity={0.3} />
-        </mesh>
-      )}
+      
+      {/* Smiley face on center */}
+      {/* Left eye */}
+      <mesh position={[-0.025, puffHeight / 2 + centerRadius * 0.7, centerRadius * 0.3]}>
+        <sphereGeometry args={[0.012, 8, 8]} />
+        <meshBasicMaterial color="#000000" />
+      </mesh>
+      {/* Right eye */}
+      <mesh position={[0.025, puffHeight / 2 + centerRadius * 0.7, centerRadius * 0.3]}>
+        <sphereGeometry args={[0.012, 8, 8]} />
+        <meshBasicMaterial color="#000000" />
+      </mesh>
+      {/* Smile/mouth - red */}
+      <mesh position={[0, puffHeight / 2 + centerRadius * 0.3, centerRadius * 0.5]}>
+        <sphereGeometry args={[0.035, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#CC0000" roughness={0.6} />
+      </mesh>
     </group>
   );
 }
