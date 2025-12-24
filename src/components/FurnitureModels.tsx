@@ -437,7 +437,7 @@ function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMo
   const darkGrey = isSelected ? '#005ACC' : isHovered ? '#4AA8DA' : '#222222';
   const white = isSelected ? '#99CCFF' : isHovered ? '#AADDFF' : '#f0f0f0';
   
-  const s = height * 0.28; // Scale factor
+  const s = height * 0.7; // Scale factor - bigger!
   
   return (
     <group scale={[s, s, s]}>
