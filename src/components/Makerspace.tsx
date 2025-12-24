@@ -12,7 +12,6 @@ import {
   detectRoomScan,
   extractRoomDimensions,
 } from '@/lib/modelUtils';
-import { processVideoToGlb, validateLumaApiKey } from '@/lib/lumaApi';
 import type { DetectedItem, RoomAnalysis } from '@/app/api/analyze-room/route';
 
 type TabType = 'library' | 'experiment' | 'settings';
@@ -36,20 +35,6 @@ export function Makerspace() {
   );
   const [selectedDetectedItems, setSelectedDetectedItems] = useState<Set<number>>(new Set());
   
-  // Image-to-3D state (Meshy)
-  const [meshyApiKey, setMeshyApiKey] = useState<string>(() => 
-    typeof window !== 'undefined' ? localStorage.getItem('meshy-api-key') || '' : ''
-  );
-  const [conversionJobs, setConversionJobs] = useState<Array<{
-    id: string;
-    taskId: string;
-    name: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
-    progress: number;
-    thumbnail?: string;
-    error?: string;
-  }>>([]);
-  const [isConverting, setIsConverting] = useState(false);
   
   const {
     items,
@@ -219,21 +204,6 @@ export function Makerspace() {
   };
   
   // Validate and save Luma API key
-  const [apiKeyInput, setApiKeyInput] = useState(lumaApiKey || '');
-  const [isValidatingKey, setIsValidatingKey] = useState(false);
-  
-  const handleSaveApiKey = async () => {
-    setIsValidatingKey(true);
-    const isValid = await validateLumaApiKey(apiKeyInput);
-    setIsValidatingKey(false);
-    
-    if (isValid) {
-      setLumaApiKey(apiKeyInput);
-      alert('API key saved successfully!');
-    } else {
-      alert('Invalid API key. Please check and try again.');
-    }
-  };
 
   // Experiment: Photo upload and analysis
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,172 +264,6 @@ export function Makerspace() {
       localStorage.setItem('openai-api-key', openaiApiKey);
     }
     alert('OpenAI API key saved!');
-  };
-
-  const handleSaveMeshyKey = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('meshy-api-key', meshyApiKey);
-    }
-    alert('Meshy API key saved!');
-  };
-
-  // Convert image to 3D model using Meshy
-  const handleConvertTo3D = async () => {
-    if (!experimentImage) {
-      setExperimentError('Please upload an image first');
-      return;
-    }
-    
-    if (!meshyApiKey || meshyApiKey.trim().length < 10) {
-      setExperimentError('Please enter a valid Meshy API key (get free at meshy.ai)');
-      return;
-    }
-
-    setIsConverting(true);
-    setExperimentError(null);
-
-    try {
-      console.log('Starting 3D conversion with key:', meshyApiKey.substring(0, 8) + '...');
-      
-      // Start conversion task
-      const response = await fetch('/api/image-to-3d', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageUrl: experimentImage,
-          apiKey: meshyApiKey.trim(),
-          name: 'Scanned Furniture',
-        }),
-      });
-
-      const data = await response.json();
-      console.log('API response:', data);
-      
-      if (!response.ok) {
-        throw new Error(data.error || `Failed (${response.status}): ${JSON.stringify(data)}`);
-      }
-
-      // Add to jobs list
-      const jobId = `job_${Date.now()}`;
-      setConversionJobs(prev => [...prev, {
-        id: jobId,
-        taskId: data.taskId,
-        name: data.name || 'Scanned Object',
-        status: 'pending',
-        progress: 0,
-        thumbnail: experimentImage,
-      }]);
-
-      // Start polling for status
-      pollConversionStatus(jobId, data.taskId);
-
-      // Clear the image (job is running)
-      setExperimentImage(null);
-      
-    } catch (err) {
-      setExperimentError(err instanceof Error ? err.message : 'Conversion failed');
-    } finally {
-      setIsConverting(false);
-    }
-  };
-
-  // Poll for conversion status
-  const pollConversionStatus = async (jobId: string, taskId: string) => {
-    const maxAttempts = 120; // 10 minutes max
-    const interval = 5000; // 5 seconds
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      await new Promise(resolve => setTimeout(resolve, interval));
-
-      try {
-        const response = await fetch(
-          `/api/image-to-3d?taskId=${taskId}&apiKey=${encodeURIComponent(meshyApiKey)}`
-        );
-        const data = await response.json();
-
-        if (!response.ok) {
-          setConversionJobs(prev => prev.map(j => 
-            j.id === jobId ? { ...j, status: 'failed', error: data.error } : j
-          ));
-          return;
-        }
-
-        // Update job status
-        setConversionJobs(prev => prev.map(j => 
-          j.id === jobId ? { 
-            ...j, 
-            status: data.status, 
-            progress: data.progress || 0,
-          } : j
-        ));
-
-        if (data.status === 'completed' && data.modelUrl) {
-          // Download the GLB and add to Makerspace
-          await downloadAndAddModel(jobId, data.modelUrl, data.thumbnailUrl);
-          return;
-        }
-
-        if (data.status === 'failed') {
-          setConversionJobs(prev => prev.map(j => 
-            j.id === jobId ? { ...j, error: data.error || 'Conversion failed' } : j
-          ));
-          return;
-        }
-      } catch (err) {
-        console.error('Poll error:', err);
-      }
-    }
-
-    // Timeout
-    setConversionJobs(prev => prev.map(j => 
-      j.id === jobId ? { ...j, status: 'failed', error: 'Timeout - conversion took too long' } : j
-    ));
-  };
-
-  // Download GLB and add to Makerspace library
-  const downloadAndAddModel = async (jobId: string, modelUrl: string, thumbnailUrl?: string) => {
-    try {
-      const response = await fetch(modelUrl);
-      if (!response.ok) throw new Error('Failed to download model');
-
-      const arrayBuffer = await response.arrayBuffer();
-      const scene = await loadGLBFromArrayBuffer(arrayBuffer);
-      const { dimensions } = normalizeModel(scene, 1);
-
-      // Generate thumbnail if not provided
-      let thumbnail = thumbnailUrl;
-      if (!thumbnail) {
-        try {
-          thumbnail = await generateModelThumbnail(scene);
-        } catch (e) {
-          console.warn('Failed to generate thumbnail');
-        }
-      }
-
-      // Get job info
-      const job = conversionJobs.find(j => j.id === jobId);
-
-      // Add to Makerspace library
-      await addItem(
-        {
-          name: job?.name || 'Scanned Object',
-          type: 'item',
-          dimensions,
-          thumbnail,
-          source: 'scan',
-        },
-        arrayBuffer
-      );
-
-      // Remove from jobs list
-      setConversionJobs(prev => prev.filter(j => j.id !== jobId));
-
-    } catch (err) {
-      console.error('Download error:', err);
-      setConversionJobs(prev => prev.map(j => 
-        j.id === jobId ? { ...j, status: 'failed', error: 'Failed to download model' } : j
-      ));
-    }
   };
 
   const toggleDetectedItem = (index: number) => {
@@ -766,49 +570,6 @@ export function Makerspace() {
         {/* Photo AI Tab */}
         {activeTab === 'experiment' && (
           <div className="space-y-4">
-
-            {/* Active Conversion Jobs */}
-            {conversionJobs.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-700">Converting to 3D...</h4>
-                {conversionJobs.map(job => (
-                  <div key={job.id} className="bg-white/60 backdrop-blur-xl rounded-xl p-3 border border-white/50">
-                    <div className="flex items-center gap-3">
-                      {job.thumbnail && (
-                        <img src={job.thumbnail} alt="" className="w-12 h-12 rounded-lg object-cover" />
-                      )}
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">{job.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {job.status === 'failed' ? (
-                            <span className="text-xs text-red-500">{job.error || 'Failed'}</span>
-                          ) : (
-                            <>
-                              <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-all"
-                                  style={{ width: `${job.progress}%` }}
-                                />
-                              </div>
-                              <span className="text-xs text-gray-500">{job.progress}%</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      {job.status === 'failed' && (
-                        <button
-                          onClick={() => setConversionJobs(prev => prev.filter(j => j.id !== job.id))}
-                          className="text-gray-400 hover:text-gray-600"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {/* Photo Upload */}
             {!experimentImage && (
               <div
@@ -852,50 +613,13 @@ export function Makerspace() {
                 </div>
 
                 {/* Action Buttons */}
-                {!experimentAnalysis && !experimentLoading && !isConverting && (
+                {!experimentAnalysis && !experimentLoading && (
                   <div className="space-y-2">
-                    {/* Convert to 3D - Main feature */}
-                    <button
-                      onClick={() => {
-                        if (!meshyApiKey) {
-                          setExperimentError('Add your Meshy API key first! Go to Settings (⚙️) or enter it below.');
-                          return;
-                        }
-                        handleConvertTo3D();
-                      }}
-                      className="w-full py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2"
-                    >
-                      <span>🎨</span> Convert to 3D Model
-                    </button>
-
-                    {/* Meshy key input if not set */}
-                    {!meshyApiKey && (
-                      <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-3">
-                        <p className="text-cyan-700 text-xs mb-2">Enter Meshy API key (free at meshy.ai):</p>
-                        <div className="flex gap-2">
-                          <input
-                            type="password"
-                            value={meshyApiKey}
-                            onChange={(e) => setMeshyApiKey(e.target.value)}
-                            placeholder="msy_..."
-                            className="flex-1 px-3 py-2 rounded-lg text-gray-800 text-sm border border-cyan-200"
-                          />
-                          <button
-                            onClick={handleSaveMeshyKey}
-                            disabled={!meshyApiKey}
-                            className="px-3 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium"
-                          >
-                            Save
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Analyze with AI - Always show */}
+                    {/* Analyze with AI */}
                     <button
                       onClick={() => {
                         if (!openaiApiKey) {
-                          setExperimentError('Enter your OpenAI API key below first!');
+                          setExperimentError('Enter your OpenAI API key in Settings (⚙️) first!');
                           return;
                         }
                         handleAnalyzePhoto();
@@ -1073,42 +797,9 @@ export function Makerspace() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="space-y-4">
-            {/* Meshy API Key (for Image to 3D) */}
-            <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-white/50">
-              <h4 className="font-medium text-gray-800 mb-3">🎨 Meshy API Key (Image → 3D)</h4>
-              <div className="space-y-2">
-                <input
-                  type="password"
-                  value={meshyApiKey}
-                  onChange={(e) => setMeshyApiKey(e.target.value)}
-                  placeholder="msy_..."
-                  className="glass-input w-full px-3 py-2.5 rounded-xl text-gray-800"
-                />
-                <button
-                  onClick={handleSaveMeshyKey}
-                  disabled={!meshyApiKey}
-                  className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-300 text-white rounded-xl font-medium transition-colors"
-                >
-                  Save Meshy Key
-                </button>
-              </div>
-              <p className="text-xs text-gray-400 mt-3">
-                Get FREE API key from{' '}
-                <a
-                  href="https://www.meshy.ai/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cyan-500 underline"
-                >
-                  meshy.ai
-                </a>
-                {' '}(200 free credits/month)
-              </p>
-            </div>
-
             {/* OpenAI API Key (for Photo AI) */}
             <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-white/50">
-              <h4 className="font-medium text-gray-800 mb-3">🧠 OpenAI API Key (Analysis only)</h4>
+              <h4 className="font-medium text-gray-800 mb-3">🧠 OpenAI API Key</h4>
               <div className="space-y-2">
                 <input
                   type="password"
@@ -1126,38 +817,14 @@ export function Makerspace() {
                 </button>
               </div>
               <p className="text-xs text-gray-400 mt-3">
-                Optional - for detecting furniture types/dimensions only
-              </p>
-            </div>
-
-            {/* Luma API Key */}
-            <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-white/50">
-              <h4 className="font-medium text-gray-800 mb-3">Luma AI API Key</h4>
-              <div className="space-y-2">
-                <input
-                  type="password"
-                  value={apiKeyInput}
-                  onChange={(e) => setApiKeyInput(e.target.value)}
-                  placeholder="Enter your Luma API key"
-                  className="glass-input w-full px-3 py-2.5 rounded-xl text-gray-800"
-                />
-                <button
-                  onClick={handleSaveApiKey}
-                  disabled={isValidatingKey || !apiKeyInput}
-                  className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-xl font-medium transition-colors"
-                >
-                  {isValidatingKey ? 'Validating...' : 'Save API Key'}
-                </button>
-              </div>
-              <p className="text-xs text-gray-400 mt-3">
-                Get your API key from{' '}
+                Required for Photo AI furniture detection. Get your key from{' '}
                 <a
-                  href="https://lumalabs.ai/dashboard/api"
+                  href="https://platform.openai.com/api-keys"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 underline"
+                  className="text-purple-500 underline"
                 >
-                  lumalabs.ai
+                  platform.openai.com
                 </a>
               </p>
             </div>
