@@ -429,30 +429,122 @@ function GojoMangaModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMod
   );
 }
 
-// KAWS Companion Figure
+// KAWS Companion Figure - 3D stylized figure
 function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
-  const { width, height, depth } = dimensions;
-  const texture = useTexture('/covers/kaws.png');
+  const { height } = dimensions;
+  
+  const bodyColor = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#9E9E9E';
+  const darkColor = isSelected ? '#005ACC' : isHovered ? '#4AA8DA' : '#616161';
+  const lightColor = isSelected ? '#339AFF' : isHovered ? '#7AD8FA' : '#E0E0E0';
+  
+  const scale = height / 0.15; // Scale factor based on height
   
   return (
-    <group>
-      {/* Figure body */}
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color="#808080" />
+    <group scale={[scale * 0.5, scale * 0.5, scale * 0.5]}>
+      {/* HEAD */}
+      <mesh position={[0, 0.12, 0]} castShadow>
+        <sphereGeometry args={[0.025, 64, 64]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
       </mesh>
-      {/* KAWS image on front */}
-      <mesh position={[0, height / 2, depth / 2 + 0.001]}>
-        <planeGeometry args={[width * 0.95, height * 0.95]} />
-        <meshBasicMaterial map={texture} transparent />
+      
+      {/* Left Ear - Mickey style */}
+      <mesh position={[-0.022, 0.14, -0.005]} castShadow>
+        <sphereGeometry args={[0.012, 32, 32]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
       </mesh>
-      {/* Selection highlight */}
-      {(isSelected || isHovered) && (
-        <mesh position={[0, height / 2, 0]}>
-          <boxGeometry args={[width * 1.05, height * 1.02, depth * 1.05]} />
-          <meshBasicMaterial color={isSelected ? '#007AFF' : '#5AC8FA'} transparent opacity={0.2} />
+      {/* Right Ear */}
+      <mesh position={[0.022, 0.14, -0.005]} castShadow>
+        <sphereGeometry args={[0.012, 32, 32]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      
+      {/* X Eyes - Left */}
+      <group position={[-0.01, 0.125, 0.02]}>
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.012, 0.003, 0.002]} />
+          <meshBasicMaterial color="#1a1a1a" />
         </mesh>
-      )}
+        <mesh rotation={[0, 0, -Math.PI / 4]}>
+          <boxGeometry args={[0.012, 0.003, 0.002]} />
+          <meshBasicMaterial color="#1a1a1a" />
+        </mesh>
+      </group>
+      {/* X Eyes - Right */}
+      <group position={[0.01, 0.125, 0.02]}>
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.012, 0.003, 0.002]} />
+          <meshBasicMaterial color="#1a1a1a" />
+        </mesh>
+        <mesh rotation={[0, 0, -Math.PI / 4]}>
+          <boxGeometry args={[0.012, 0.003, 0.002]} />
+          <meshBasicMaterial color="#1a1a1a" />
+        </mesh>
+      </group>
+      
+      {/* BODY / TORSO */}
+      <mesh position={[0, 0.075, 0]} castShadow>
+        <capsuleGeometry args={[0.018, 0.03, 16, 32]} />
+        <meshPhysicalMaterial color={lightColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      
+      {/* SHORTS */}
+      <mesh position={[0, 0.045, 0]} castShadow>
+        <capsuleGeometry args={[0.019, 0.015, 16, 32]} />
+        <meshPhysicalMaterial color={darkColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      {/* Shorts buttons */}
+      <mesh position={[-0.008, 0.045, 0.016]}>
+        <sphereGeometry args={[0.004, 16, 16]} />
+        <meshPhysicalMaterial color={lightColor} roughness={0.8} />
+      </mesh>
+      <mesh position={[0.008, 0.045, 0.016]}>
+        <sphereGeometry args={[0.004, 16, 16]} />
+        <meshPhysicalMaterial color={lightColor} roughness={0.8} />
+      </mesh>
+      
+      {/* LEFT ARM */}
+      <mesh position={[-0.028, 0.07, 0]} rotation={[0, 0, 0.3]} castShadow>
+        <capsuleGeometry args={[0.006, 0.025, 8, 16]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      {/* Left Hand/Glove */}
+      <mesh position={[-0.038, 0.05, 0]} castShadow>
+        <sphereGeometry args={[0.01, 32, 32]} />
+        <meshPhysicalMaterial color={lightColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      
+      {/* RIGHT ARM */}
+      <mesh position={[0.028, 0.07, 0]} rotation={[0, 0, -0.3]} castShadow>
+        <capsuleGeometry args={[0.006, 0.025, 8, 16]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      {/* Right Hand/Glove */}
+      <mesh position={[0.038, 0.05, 0]} castShadow>
+        <sphereGeometry args={[0.01, 32, 32]} />
+        <meshPhysicalMaterial color={lightColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      
+      {/* LEFT LEG */}
+      <mesh position={[-0.01, 0.02, 0]} castShadow>
+        <capsuleGeometry args={[0.007, 0.02, 8, 16]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      {/* Left Foot */}
+      <mesh position={[-0.01, 0.003, 0.003]} castShadow>
+        <sphereGeometry args={[0.009, 32, 32]} />
+        <meshPhysicalMaterial color={darkColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      
+      {/* RIGHT LEG */}
+      <mesh position={[0.01, 0.02, 0]} castShadow>
+        <capsuleGeometry args={[0.007, 0.02, 8, 16]} />
+        <meshPhysicalMaterial color={bodyColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
+      {/* Right Foot */}
+      <mesh position={[0.01, 0.003, 0.003]} castShadow>
+        <sphereGeometry args={[0.009, 32, 32]} />
+        <meshPhysicalMaterial color={darkColor} roughness={1} sheen={1} sheenColor="white" sheenRoughness={0.5} />
+      </mesh>
     </group>
   );
 }
