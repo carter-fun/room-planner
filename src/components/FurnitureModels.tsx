@@ -521,32 +521,51 @@ function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<Furnitu
         />
       </mesh>
       
-      {/* Left Eye White - high up, using CircleGeometry as sticker */}
-      <mesh position={[-0.028, puffHeight / 2 + centerRadius * 0.35, centerRadius * 0.92]} rotation={[0, -0.2, 0]}>
-        <circleGeometry args={[0.022, 64]} />
-        <meshBasicMaterial color="white" />
-      </mesh>
-      {/* Left Pupil */}
-      <mesh position={[-0.025, puffHeight / 2 + centerRadius * 0.45, centerRadius * 0.93]} rotation={[0, -0.2, 0]}>
-        <circleGeometry args={[0.008, 64]} />
-        <meshBasicMaterial color="black" />
-      </mesh>
-      
-      {/* Right Eye White */}
-      <mesh position={[0.028, puffHeight / 2 + centerRadius * 0.35, centerRadius * 0.92]} rotation={[0, 0.2, 0]}>
-        <circleGeometry args={[0.022, 64]} />
-        <meshBasicMaterial color="white" />
-      </mesh>
-      {/* Right Pupil */}
-      <mesh position={[0.025, puffHeight / 2 + centerRadius * 0.45, centerRadius * 0.93]} rotation={[0, 0.2, 0]}>
-        <circleGeometry args={[0.008, 64]} />
-        <meshBasicMaterial color="black" />
-      </mesh>
-      
-      {/* Mouth - half circle "D" shape using CircleGeometry with thetaLength */}
-      <mesh position={[0, puffHeight / 2 - centerRadius * 0.15, centerRadius * 0.95]} rotation={[0, 0, Math.PI]}>
-        <circleGeometry args={[0.038, 64, 0, Math.PI]} />
-        <meshBasicMaterial color="#A93226" />
+      {/* Eyes group - positioned high on face */}
+      <group position={[0, puffHeight / 2 + centerRadius * 0.25, centerRadius * 0.88]}>
+        {/* LEFT EYE */}
+        <group position={[-0.028, 0, 0]} rotation={[0, -0.3, 0]}>
+          {/* White part - flattened sphere with thickness */}
+          <mesh scale={[0.022, 0.028, 0.008]}>
+            <sphereGeometry args={[1, 32, 32]} />
+            <meshStandardMaterial color="white" roughness={0.8} />
+          </mesh>
+          {/* Pupil - pushed forward */}
+          <mesh position={[0.003, 0.006, 0.008]} scale={[0.008, 0.01, 0.005]}>
+            <sphereGeometry args={[1, 32, 32]} />
+            <meshStandardMaterial color="black" roughness={0.8} />
+          </mesh>
+        </group>
+
+        {/* RIGHT EYE */}
+        <group position={[0.028, 0, 0]} rotation={[0, 0.3, 0]}>
+          {/* White part */}
+          <mesh scale={[0.022, 0.028, 0.008]}>
+            <sphereGeometry args={[1, 32, 32]} />
+            <meshStandardMaterial color="white" roughness={0.8} />
+          </mesh>
+          {/* Pupil */}
+          <mesh position={[-0.003, 0.006, 0.008]} scale={[0.008, 0.01, 0.005]}>
+            <sphereGeometry args={[1, 32, 32]} />
+            <meshStandardMaterial color="black" roughness={0.8} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* Mouth - extruded D-shape with thickness */}
+      <mesh position={[0, puffHeight / 2 - centerRadius * 0.18, centerRadius * 0.92]}>
+        <extrudeGeometry 
+          args={[
+            (() => {
+              const shape = new THREE.Shape();
+              shape.absarc(0, 0, 0.038, 0, Math.PI, true);
+              shape.lineTo(0.038, 0);
+              return shape;
+            })(),
+            { depth: 0.008, bevelEnabled: false }
+          ]} 
+        />
+        <meshStandardMaterial color="#A93226" roughness={1} />
       </mesh>
     </group>
   );
