@@ -460,7 +460,7 @@ function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMo
 // Murakami Flower Plushie - flat rainbow flower
 function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { width, height, depth } = dimensions;
-  const texture = useTexture('/covers/murakami-flower.png');
+  const texture = useTexture('/covers/murakami.png');
   
   return (
     <group>
