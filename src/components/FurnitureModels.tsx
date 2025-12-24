@@ -457,35 +457,35 @@ function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMo
   );
 }
 
-// Murakami Flower Plushie - puffy 3D flower with colorful petals
+// Murakami Flower Plushie - soft velvet plush with high-poly smooth geometry
 function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { width, height } = dimensions;
   
-  // Rainbow petal colors matching the real Murakami flower
+  // Murakami-accurate petal colors
   const petalColors = [
-    '#FF69B4', // Pink
-    '#FF0000', // Red  
-    '#FF8C00', // Orange
-    '#FFD700', // Yellow
-    '#90EE90', // Light green
-    '#228B22', // Green
-    '#00CED1', // Cyan
-    '#4169E1', // Blue
-    '#8A2BE2', // Purple
-    '#4B0082', // Indigo
-    '#2F2F2F', // Dark grey
-    '#FFE4B5', // Cream
+    '#F48FB1', // Pink
+    '#EC7063', // Red  
+    '#F5B041', // Orange
+    '#F7DC6F', // Light Yellow
+    '#ABEBC6', // Light green
+    '#58D68D', // Green
+    '#76D7C4', // Teal
+    '#5DADE2', // Blue
+    '#85C1E9', // Light blue
+    '#A569BD', // Purple
+    '#2C3E50', // Dark navy
+    '#FAD7A0', // Cream
   ];
   
   const petalCount = 12;
   const petalRadius = width * 0.22;
-  const centerRadius = width * 0.25;
+  const centerRadius = width * 0.32;
   const flowerRadius = width * 0.38;
   const puffHeight = height * 0.8;
   
   return (
     <group>
-      {/* Petals arranged in a circle */}
+      {/* Petals arranged in a circle - high poly with velvet sheen */}
       {petalColors.map((color, i) => {
         const angle = (i / petalCount) * Math.PI * 2;
         const x = Math.cos(angle) * flowerRadius;
@@ -497,47 +497,62 @@ function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<Furnitu
             castShadow 
             receiveShadow
           >
-            <sphereGeometry args={[petalRadius, 16, 16]} />
-            <meshStandardMaterial 
+            <sphereGeometry args={[petalRadius, 64, 64]} />
+            <meshPhysicalMaterial 
               color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : color} 
-              roughness={0.8}
+              roughness={1}
+              sheen={1}
+              sheenColor="white"
+              sheenRoughness={0.5}
             />
           </mesh>
         );
       })}
       
-      {/* Yellow center - bigger to show more yellow */}
+      {/* Yellow center - sunflower yellow with velvet sheen */}
       <mesh position={[0, puffHeight / 2 + 0.01, 0]} castShadow receiveShadow>
-        <sphereGeometry args={[centerRadius * 1.3, 24, 24]} />
-        <meshStandardMaterial 
-          color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#FFE135'} 
-          roughness={0.7}
+        <sphereGeometry args={[centerRadius, 64, 64]} />
+        <meshPhysicalMaterial 
+          color={isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#F4D03F'} 
+          roughness={1}
+          sheen={1}
+          sheenColor="white"
+          sheenRoughness={0.5}
         />
       </mesh>
       
-      {/* Smiley face on center */}
-      {/* Left eye - white with black pupil */}
-      <mesh position={[-0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.85]}>
-        <sphereGeometry args={[0.018, 12, 12]} />
-        <meshBasicMaterial color="#FFFFFF" />
+      {/* Left eye - squashed white sphere */}
+      <mesh position={[-0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.85]} scale={[0.3, 0.4, 0.08]}>
+        <sphereGeometry args={[0.08, 32, 32]} />
+        <meshBasicMaterial color="white" />
       </mesh>
-      <mesh position={[-0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.92]}>
-        <sphereGeometry args={[0.008, 8, 8]} />
-        <meshBasicMaterial color="#000000" />
+      {/* Left pupil */}
+      <mesh position={[-0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.9]} scale={[0.15, 0.2, 0.05]}>
+        <sphereGeometry args={[0.08, 32, 32]} />
+        <meshBasicMaterial color="black" />
       </mesh>
-      {/* Right eye - white with black pupil */}
-      <mesh position={[0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.85]}>
-        <sphereGeometry args={[0.018, 12, 12]} />
-        <meshBasicMaterial color="#FFFFFF" />
+      
+      {/* Right eye - squashed white sphere */}
+      <mesh position={[0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.85]} scale={[0.3, 0.4, 0.08]}>
+        <sphereGeometry args={[0.08, 32, 32]} />
+        <meshBasicMaterial color="white" />
       </mesh>
-      <mesh position={[0.028, puffHeight / 2 + centerRadius * 0.9, centerRadius * 0.92]}>
-        <sphereGeometry args={[0.008, 8, 8]} />
-        <meshBasicMaterial color="#000000" />
+      {/* Right pupil */}
+      <mesh position={[0.032, puffHeight / 2 + centerRadius * 0.5, centerRadius * 0.9]} scale={[0.15, 0.2, 0.05]}>
+        <sphereGeometry args={[0.08, 32, 32]} />
+        <meshBasicMaterial color="black" />
       </mesh>
-      {/* Smile - solid red half-circle below eyes */}
-      <mesh position={[0, puffHeight / 2 + centerRadius * 0.15, centerRadius * 1.05]} rotation={[0.4, 0, 0]}>
-        <circleGeometry args={[0.045, 32, Math.PI, Math.PI]} />
-        <meshStandardMaterial color="#AA0033" roughness={0.5} side={2} />
+      
+      {/* Mouth - wide squashed red sphere */}
+      <mesh position={[0, puffHeight / 2 + centerRadius * -0.1, centerRadius * 0.85]} scale={[0.8, 0.5, 0.1]}>
+        <sphereGeometry args={[0.06, 32, 32]} />
+        <meshPhysicalMaterial 
+          color="#B03060"
+          roughness={0.8}
+          sheen={0.5}
+          sheenColor="white"
+          sheenRoughness={0.5}
+        />
       </mesh>
     </group>
   );
