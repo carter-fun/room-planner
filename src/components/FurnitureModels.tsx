@@ -429,129 +429,136 @@ function GojoMangaModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMod
   );
 }
 
-// KAWS Companion Figure - proper proportions with capsule ears and X eyes
+// KAWS Companion Figure - Chunky vinyl toy with proper proportions
 function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { height } = dimensions;
   
-  const grey = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#4a4a4a';
-  const darkGrey = isSelected ? '#005ACC' : isHovered ? '#4AA8DA' : '#3a3a3a';
-  const lightGrey = isSelected ? '#339AFF' : isHovered ? '#7AD8FA' : '#BDBDBD';
+  const grey = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#333333';
+  const darkGrey = isSelected ? '#005ACC' : isHovered ? '#4AA8DA' : '#222222';
+  const white = isSelected ? '#99CCFF' : isHovered ? '#AADDFF' : '#f0f0f0';
   
-  const s = height * 0.4; // Scale factor
+  const s = height * 0.28; // Scale factor
   
   return (
     <group scale={[s, s, s]}>
-      {/* ============ HEAD ============ */}
-      <group position={[0, 0.32, 0]}>
-        {/* Skull - wide bean shape */}
-        <mesh scale={[1.3, 1, 1]} castShadow>
-          <sphereGeometry args={[0.07, 64, 64]} />
-          <meshStandardMaterial color={grey} roughness={0.4} />
+      
+      {/* ============ HEAD (Bone Shape) ============ */}
+      <group position={[0, 0.58, 0]}>
+        {/* Face - wide squashed sphere */}
+        <mesh scale={[1.2, 0.9, 1]} castShadow>
+          <sphereGeometry args={[0.12, 64, 64]} />
+          <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
         </mesh>
         
-        {/* Left Ear - bulbous bone lobe */}
-        <mesh position={[-0.085, 0.02, 0]} rotation={[0, 0, 0.5]} castShadow>
-          <capsuleGeometry args={[0.025, 0.05, 8, 32]} />
-          <meshStandardMaterial color={grey} roughness={0.4} />
+        {/* Left Ear - big bone lobe */}
+        <mesh position={[-0.14, 0.02, 0]} rotation={[0, 0, 0.5]} castShadow>
+          <capsuleGeometry args={[0.045, 0.1, 8, 32]} />
+          <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
         </mesh>
         
-        {/* Right Ear - bulbous bone lobe */}
-        <mesh position={[0.085, 0.02, 0]} rotation={[0, 0, -0.5]} castShadow>
-          <capsuleGeometry args={[0.025, 0.05, 8, 32]} />
-          <meshStandardMaterial color={grey} roughness={0.4} />
+        {/* Right Ear - big bone lobe */}
+        <mesh position={[0.14, 0.02, 0]} rotation={[0, 0, -0.5]} castShadow>
+          <capsuleGeometry args={[0.045, 0.1, 8, 32]} />
+          <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
         </mesh>
         
         {/* Left X Eye */}
-        <group position={[-0.03, 0.01, 0.06]}>
+        <group position={[-0.045, 0.015, 0.1]}>
           <mesh rotation={[0, 0, Math.PI / 4]}>
-            <capsuleGeometry args={[0.006, 0.025, 4, 8]} />
-            <meshStandardMaterial color="#1a1a1a" />
+            <capsuleGeometry args={[0.012, 0.04, 4, 16]} />
+            <meshStandardMaterial color="#111111" roughness={0.5} />
           </mesh>
           <mesh rotation={[0, 0, -Math.PI / 4]}>
-            <capsuleGeometry args={[0.006, 0.025, 4, 8]} />
-            <meshStandardMaterial color="#1a1a1a" />
+            <capsuleGeometry args={[0.012, 0.04, 4, 16]} />
+            <meshStandardMaterial color="#111111" roughness={0.5} />
           </mesh>
         </group>
         
         {/* Right X Eye */}
-        <group position={[0.03, 0.01, 0.06]}>
+        <group position={[0.045, 0.015, 0.1]}>
           <mesh rotation={[0, 0, Math.PI / 4]}>
-            <capsuleGeometry args={[0.006, 0.025, 4, 8]} />
-            <meshStandardMaterial color="#1a1a1a" />
+            <capsuleGeometry args={[0.012, 0.04, 4, 16]} />
+            <meshStandardMaterial color="#111111" roughness={0.5} />
           </mesh>
           <mesh rotation={[0, 0, -Math.PI / 4]}>
-            <capsuleGeometry args={[0.006, 0.025, 4, 8]} />
-            <meshStandardMaterial color="#1a1a1a" />
+            <capsuleGeometry args={[0.012, 0.04, 4, 16]} />
+            <meshStandardMaterial color="#111111" roughness={0.5} />
           </mesh>
         </group>
       </group>
       
-      {/* ============ BODY ============ */}
-      {/* Torso - lighter grey */}
-      <mesh position={[0, 0.19, 0]} castShadow>
-        <capsuleGeometry args={[0.045, 0.06, 16, 32]} />
-        <meshStandardMaterial color={lightGrey} roughness={0.4} />
+      {/* ============ TORSO (Pear Shape) ============ */}
+      <mesh position={[0, 0.35, 0]} castShadow>
+        <cylinderGeometry args={[0.065, 0.085, 0.22, 32]} />
+        <meshStandardMaterial color={white} roughness={0.25} metalness={0} envMapIntensity={1.5} />
       </mesh>
       
-      {/* Shorts - darker */}
-      <mesh position={[0, 0.11, 0]} castShadow>
-        <capsuleGeometry args={[0.048, 0.03, 16, 32]} />
-        <meshStandardMaterial color={darkGrey} roughness={0.4} />
+      {/* ============ SHORTS ============ */}
+      <mesh position={[0, 0.2, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.09, 0.1, 32]} />
+        <meshStandardMaterial color={darkGrey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
       </mesh>
       {/* Shorts buttons */}
-      <mesh position={[-0.02, 0.11, 0.042]}>
-        <sphereGeometry args={[0.012, 16, 16]} />
-        <meshStandardMaterial color={lightGrey} roughness={0.4} />
+      <mesh position={[-0.035, 0.2, 0.075]}>
+        <sphereGeometry args={[0.018, 32, 32]} />
+        <meshStandardMaterial color={white} roughness={0.25} />
       </mesh>
-      <mesh position={[0.02, 0.11, 0.042]}>
-        <sphereGeometry args={[0.012, 16, 16]} />
-        <meshStandardMaterial color={lightGrey} roughness={0.4} />
+      <mesh position={[0.035, 0.2, 0.075]}>
+        <sphereGeometry args={[0.018, 32, 32]} />
+        <meshStandardMaterial color={white} roughness={0.25} />
       </mesh>
       
       {/* ============ ARMS ============ */}
       {/* Left Arm */}
-      <mesh position={[-0.065, 0.18, 0]} rotation={[0, 0, 0.4]} castShadow>
-        <capsuleGeometry args={[0.018, 0.06, 8, 16]} />
-        <meshStandardMaterial color={grey} roughness={0.4} />
-      </mesh>
-      {/* Left Hand */}
-      <mesh position={[-0.09, 0.12, 0]} castShadow>
-        <sphereGeometry args={[0.028, 32, 32]} />
-        <meshStandardMaterial color={lightGrey} roughness={0.4} />
-      </mesh>
+      <group position={[-0.1, 0.38, 0]} rotation={[0, 0, 0.2]}>
+        <mesh position={[0, -0.08, 0]} castShadow>
+          <capsuleGeometry args={[0.03, 0.18, 8, 32]} />
+          <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
+        </mesh>
+        {/* Left Hand - big mitten */}
+        <mesh position={[0, -0.22, 0]} castShadow>
+          <sphereGeometry args={[0.045, 32, 32]} />
+          <meshStandardMaterial color={white} roughness={0.25} metalness={0} envMapIntensity={1.5} />
+        </mesh>
+      </group>
       
       {/* Right Arm */}
-      <mesh position={[0.065, 0.18, 0]} rotation={[0, 0, -0.4]} castShadow>
-        <capsuleGeometry args={[0.018, 0.06, 8, 16]} />
-        <meshStandardMaterial color={grey} roughness={0.4} />
-      </mesh>
-      {/* Right Hand */}
-      <mesh position={[0.09, 0.12, 0]} castShadow>
-        <sphereGeometry args={[0.028, 32, 32]} />
-        <meshStandardMaterial color={lightGrey} roughness={0.4} />
-      </mesh>
+      <group position={[0.1, 0.38, 0]} rotation={[0, 0, -0.2]}>
+        <mesh position={[0, -0.08, 0]} castShadow>
+          <capsuleGeometry args={[0.03, 0.18, 8, 32]} />
+          <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
+        </mesh>
+        {/* Right Hand - big mitten */}
+        <mesh position={[0, -0.22, 0]} castShadow>
+          <sphereGeometry args={[0.045, 32, 32]} />
+          <meshStandardMaterial color={white} roughness={0.25} metalness={0} envMapIntensity={1.5} />
+        </mesh>
+      </group>
       
-      {/* ============ LEGS ============ */}
+      {/* ============ LEGS (Thick) ============ */}
       {/* Left Leg */}
-      <mesh position={[-0.025, 0.05, 0]} castShadow>
-        <capsuleGeometry args={[0.02, 0.05, 8, 16]} />
-        <meshStandardMaterial color={grey} roughness={0.4} />
-      </mesh>
-      {/* Left Foot */}
-      <mesh position={[-0.025, 0.01, 0.01]} castShadow>
-        <sphereGeometry args={[0.025, 32, 32]} />
-        <meshStandardMaterial color={darkGrey} roughness={0.4} />
+      <mesh position={[-0.04, 0.08, 0]} castShadow>
+        <cylinderGeometry args={[0.035, 0.04, 0.16, 32]} />
+        <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
       </mesh>
       
       {/* Right Leg */}
-      <mesh position={[0.025, 0.05, 0]} castShadow>
-        <capsuleGeometry args={[0.02, 0.05, 8, 16]} />
-        <meshStandardMaterial color={grey} roughness={0.4} />
+      <mesh position={[0.04, 0.08, 0]} castShadow>
+        <cylinderGeometry args={[0.035, 0.04, 0.16, 32]} />
+        <meshStandardMaterial color={grey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
       </mesh>
-      {/* Right Foot */}
-      <mesh position={[0.025, 0.01, 0.01]} castShadow>
-        <sphereGeometry args={[0.025, 32, 32]} />
-        <meshStandardMaterial color={darkGrey} roughness={0.4} />
+      
+      {/* ============ SHOES (Huge Clown Feet) ============ */}
+      {/* Left Shoe */}
+      <mesh position={[-0.04, 0.02, 0.025]} scale={[1, 0.6, 1.5]} castShadow>
+        <sphereGeometry args={[0.055, 32, 32]} />
+        <meshStandardMaterial color={darkGrey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
+      </mesh>
+      
+      {/* Right Shoe */}
+      <mesh position={[0.04, 0.02, 0.025]} scale={[1, 0.6, 1.5]} castShadow>
+        <sphereGeometry args={[0.055, 32, 32]} />
+        <meshStandardMaterial color={darkGrey} roughness={0.25} metalness={0} envMapIntensity={1.5} />
       </mesh>
     </group>
   );
