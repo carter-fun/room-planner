@@ -399,33 +399,32 @@ function MangaModel({ dimensions, color, isSelected, isHovered, orientation = 'u
 // Gojo Death Panel - the iconic JJK manga panel
 function GojoMangaModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
   const { width, height, depth } = dimensions;
-  const texture = useTexture('/covers/gojo-death.svg');
-  
-  // Frame color based on selection
-  const frameColor = isSelected ? '#007AFF' : isHovered ? '#5AC8FA' : '#1a1a1a';
+  const texture = useTexture('/covers/gojo-death.png');
   
   return (
     <group>
-      {/* Manga panel body */}
+      {/* Manga page body - white */}
       <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial color="#ffffff" />
       </mesh>
-      {/* The panel image on front */}
+      {/* The actual panel image on front */}
       <mesh position={[0, height / 2, depth / 2 + 0.001]}>
-        <planeGeometry args={[width * 0.95, height * 0.95]} />
+        <planeGeometry args={[width * 0.98, height * 0.98]} />
         <meshBasicMaterial map={texture} />
       </mesh>
-      {/* Black border/frame */}
-      <mesh position={[0, height / 2, depth / 2 + 0.002]}>
-        <planeGeometry args={[width, height]} />
-        <meshBasicMaterial color={frameColor} transparent opacity={0} />
+      {/* Panel image on back too */}
+      <mesh position={[0, height / 2, -depth / 2 - 0.001]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[width * 0.98, height * 0.98]} />
+        <meshBasicMaterial map={texture} />
       </mesh>
-      {/* Pages on side */}
-      <mesh position={[width / 2 + 0.001, height / 2, 0]}>
-        <boxGeometry args={[0.002, height * 0.95, depth * 0.9]} />
-        <meshStandardMaterial color="#f5f5f0" />
-      </mesh>
+      {/* Selection highlight border */}
+      {(isSelected || isHovered) && (
+        <mesh position={[0, height / 2, depth / 2 + 0.002]}>
+          <planeGeometry args={[width * 1.02, height * 1.02]} />
+          <meshBasicMaterial color={isSelected ? '#007AFF' : '#5AC8FA'} transparent opacity={0.3} />
+        </mesh>
+      )}
     </group>
   );
 }
