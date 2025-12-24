@@ -173,6 +173,46 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     return { x: intersectPoint.x, z: intersectPoint.z };
   }, [camera]);
   
+  // Find the best surface Y position for small items (top of furniture or floor)
+  const findSurfaceY = useCallback((x: number, z: number, itemWidth: number, itemDepth: number): number => {
+    let bestY = 0; // Floor level default
+    
+    // Only check for small items
+    if (!isSmallItem(item.type)) return bestY;
+    
+    // Check each furniture piece for potential placement surfaces
+    for (const other of furniture) {
+      if (other.id === item.id) continue;
+      
+      // Skip other small items - can't stack on them
+      if (isSmallItem(other.type)) continue;
+      
+      // Check if our item is within the XZ bounds of this furniture
+      const otherRotation = (other.rotation * Math.PI) / 180;
+      const cos = Math.abs(Math.cos(otherRotation));
+      const sin = Math.abs(Math.sin(otherRotation));
+      const otherWidth = other.dimensions.width * cos + other.dimensions.depth * sin;
+      const otherDepth = other.dimensions.width * sin + other.dimensions.depth * cos;
+      
+      const minX = other.position[0] - otherWidth / 2;
+      const maxX = other.position[0] + otherWidth / 2;
+      const minZ = other.position[2] - otherDepth / 2;
+      const maxZ = other.position[2] + otherDepth / 2;
+      
+      // Check if item center is within furniture bounds (with small margin)
+      const margin = 0.02;
+      if (x >= minX + margin && x <= maxX - margin && z >= minZ + margin && z <= maxZ - margin) {
+        // Item is over this furniture - use its top surface
+        const surfaceY = other.position[1] + other.dimensions.height;
+        if (surfaceY > bestY) {
+          bestY = surfaceY;
+        }
+      }
+    }
+    
+    return bestY;
+  }, [item.id, item.type, furniture, isSmallItem]);
+  
   // Animate tilt based on velocity - the "bouncy" effect
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -255,11 +295,12 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
       const mouseX = ((event as PointerEvent).clientX - rect.left) / rect.width * 2 - 1;
       const mouseY = -((event as PointerEvent).clientY - rect.top) / rect.height * 2 + 1;
       
-      // Keep the current Y position
-      const currentY = item.position[1];
+      // For small items, first find position on floor plane, then check for furniture surfaces
+      const isMyItemSmall = isSmallItem(item.type);
+      const searchY = isMyItemSmall ? 0 : item.position[1];
       
-      // Find position on a plane at the item's current Y height
-      const pos = findPositionAtHeight(mouseX, mouseY, currentY);
+      // Find position on a plane at the search height
+      const pos = findPositionAtHeight(mouseX, mouseY, searchY);
       
       if (pos) {
         let newX = snapToGrid(pos.x);
@@ -283,11 +324,17 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
           [newX, newZ] = clampPosition(newX, newZ);
         }
         
+        // For small items, find the best surface (furniture top or floor)
+        let newY = item.position[1];
+        if (isMyItemSmall && !isInDetailMode) {
+          newY = findSurfaceY(newX, newZ, item.dimensions.width, item.dimensions.depth);
+        }
+        
         // Move the item
-        updateFurniturePosition(item.id, [newX, currentY, newZ]);
+        updateFurniturePosition(item.id, [newX, newY, newZ]);
         
         // Check collision for visual feedback only
-        const collision = checkCollision(newX, currentY, newZ);
+        const collision = checkCollision(newX, newY, newZ);
         setHasCollision(collision);
       }
       
