@@ -125,14 +125,12 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
       // In detail mode, skip the target furniture (we're placing items ON it)
       if (isInDetailMode && other.id === detailModeTarget) continue;
       
-      // If BOTH items are small, allow them to get very close (almost touching)
+      // If BOTH items are small, use a tighter collision check (they can be close but not inside each other)
       const isOtherSmall = isSmallItem(other.type);
       const bothSmall = isMyItemSmall && isOtherSmall;
       
-      // If both are small items, skip collision entirely - let them touch
-      if (bothSmall) continue;
-      
-      const otherShrink = isOtherSmall ? 0.5 : 0.95;
+      // Use smaller collision boxes when both items are small (can be close but not overlapping)
+      const otherShrink = bothSmall ? 0.6 : (isOtherSmall ? 0.5 : 0.95);
       const otherRotation = (other.rotation * Math.PI) / 180;
       const otherCos = Math.abs(Math.cos(otherRotation));
       const otherSin = Math.abs(Math.sin(otherRotation));
