@@ -654,16 +654,6 @@ export function Makerspace() {
                   </div>
                 )}
 
-                {/* Converting */}
-                {isConverting && (
-                  <div className="p-4 bg-cyan-50 border border-cyan-200 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-                      <span className="text-cyan-700">Starting 3D conversion...</span>
-                    </div>
-                  </div>
-                )}
-
                 {/* Loading */}
                 {experimentLoading && (
                   <div className="p-4 bg-purple-50 border border-purple-200 rounded-xl">
