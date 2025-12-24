@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export interface DetectedItem {
   name: string;
-  type: 'bed' | 'desk' | 'chair' | 'couch' | 'bookshelf' | 'tv_stand' | 'nightstand' | 'wardrobe' | 'coffee_table' | 'dining_table' | 'other';
+  type: string; // Any furniture type - will be mapped to FurnitureType in the app
   dimensions: {
     width: number;  // meters
     height: number; // meters

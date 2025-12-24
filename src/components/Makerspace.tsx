@@ -474,6 +474,101 @@ export function Makerspace() {
     });
   };
 
+  // Map detected item types to actual FurnitureTypes
+  const mapDetectedTypeToFurnitureType = (detectedType: string, name: string): FurnitureType => {
+    const typeLower = detectedType.toLowerCase();
+    const nameLower = name.toLowerCase();
+    
+    // Check name for specific keywords first
+    if (nameLower.includes('king') && nameLower.includes('bed')) return 'king_bed';
+    if (nameLower.includes('twin') && nameLower.includes('bed')) return 'twin_bed';
+    if (nameLower.includes('bunk') && nameLower.includes('bed')) return 'bunk_bed';
+    if (nameLower.includes('gaming') && nameLower.includes('desk')) return 'gaming_desk';
+    if (nameLower.includes('l-shaped') || nameLower.includes('l shaped')) return 'l_desk';
+    if (nameLower.includes('standing') && nameLower.includes('desk')) return 'standing_desk';
+    if (nameLower.includes('gaming') && nameLower.includes('chair')) return 'gaming_chair';
+    if (nameLower.includes('office') && nameLower.includes('chair')) return 'office_chair';
+    if (nameLower.includes('sectional')) return 'sectional_couch';
+    if (nameLower.includes('loveseat')) return 'loveseat';
+    if (nameLower.includes('armchair')) return 'armchair';
+    if (nameLower.includes('bean bag')) return 'bean_bag';
+    if (nameLower.includes('floor lamp') || nameLower.includes('standing lamp')) return 'floor_lamp';
+    if (nameLower.includes('lamp')) return 'lamp_small';
+    if (nameLower.includes('ceiling fan')) return 'ceiling_fan';
+    if (nameLower.includes('tv') && (nameLower.includes('wall') || nameLower.includes('mounted'))) return 'tv_wall';
+    if (nameLower.includes('monitor') && nameLower.includes('dual')) return 'dual_monitor';
+    if (nameLower.includes('monitor')) return 'monitor';
+    if (nameLower.includes('pc') || nameLower.includes('computer') || nameLower.includes('tower')) return 'gaming_pc';
+    if (nameLower.includes('plant') || nameLower.includes('potted')) return 'plant';
+    if (nameLower.includes('rug') || nameLower.includes('carpet')) return 'rug';
+    if (nameLower.includes('mirror')) return 'mirror';
+    if (nameLower.includes('christmas tree')) return 'christmas_tree';
+    if (nameLower.includes('bar stool')) return 'bar_stool';
+    if (nameLower.includes('filing cabinet')) return 'filing_cabinet';
+    if (nameLower.includes('storage cube')) return 'storage_cube';
+    if (nameLower.includes('tall bookshelf') || nameLower.includes('tall shelf')) return 'tall_bookshelf';
+    if (nameLower.includes('side table') || nameLower.includes('end table')) return 'side_table';
+    if (nameLower.includes('console table')) return 'console_table';
+    if (nameLower.includes('vase')) return 'vase';
+    if (nameLower.includes('clock')) return 'clock';
+    if (nameLower.includes('trophy')) return 'trophy';
+    
+    // Map by detected type
+    const typeMap: Record<string, FurnitureType> = {
+      'bed': 'bed',
+      'king_bed': 'king_bed',
+      'twin_bed': 'twin_bed',
+      'bunk_bed': 'bunk_bed',
+      'desk': 'desk',
+      'l_desk': 'l_desk',
+      'standing_desk': 'standing_desk',
+      'gaming_desk': 'gaming_desk',
+      'chair': 'chair',
+      'office_chair': 'office_chair',
+      'gaming_chair': 'gaming_chair',
+      'armchair': 'armchair',
+      'couch': 'couch',
+      'sofa': 'couch',
+      'sectional_couch': 'sectional_couch',
+      'loveseat': 'loveseat',
+      'bean_bag': 'bean_bag',
+      'bookshelf': 'bookshelf',
+      'tall_bookshelf': 'tall_bookshelf',
+      'shelf': 'bookshelf',
+      'dresser': 'dresser',
+      'wardrobe': 'wardrobe',
+      'closet': 'wardrobe',
+      'nightstand': 'nightstand',
+      'filing_cabinet': 'filing_cabinet',
+      'storage_cube': 'storage_cube',
+      'coffee_table': 'coffee_table',
+      'dining_table': 'dining_table',
+      'side_table': 'side_table',
+      'console_table': 'console_table',
+      'tv_stand': 'tv_stand',
+      'entertainment_center': 'tv_stand',
+      'tv_wall': 'tv_wall',
+      'tv': 'tv_wall',
+      'monitor': 'monitor',
+      'dual_monitor': 'dual_monitor',
+      'gaming_pc': 'gaming_pc',
+      'computer': 'gaming_pc',
+      'plant': 'plant',
+      'floor_lamp': 'floor_lamp',
+      'lamp': 'floor_lamp',
+      'ceiling_fan': 'ceiling_fan',
+      'fan': 'ceiling_fan',
+      'rug': 'rug',
+      'carpet': 'rug',
+      'mirror': 'mirror',
+      'christmas_tree': 'christmas_tree',
+      'bar_stool': 'bar_stool',
+      'stool': 'bar_stool',
+    };
+    
+    return typeMap[typeLower] || 'coffee_table';
+  };
+
   const handleAddDetectedToRoom = () => {
     if (!experimentAnalysis) return;
     
@@ -494,8 +589,8 @@ export function Makerspace() {
     experimentAnalysis.items.forEach((item, index) => {
       if (!selectedDetectedItems.has(index)) return;
       
-      // Map detected type to our furniture types
-      const furnitureType: FurnitureType = item.type === 'other' ? 'coffee_table' : item.type;
+      // Map detected type to our furniture types using smart mapping
+      const furnitureType: FurnitureType = mapDetectedTypeToFurnitureType(item.type, item.name);
       const catalog = FURNITURE_CATALOG[furnitureType];
       
       // Place items in a neat grid pattern for easy arrangement
