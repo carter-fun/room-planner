@@ -457,27 +457,22 @@ function KawsFigureModel({ dimensions, isSelected, isHovered }: Omit<FurnitureMo
   );
 }
 
-// Murakami Flower Plushie - flat rainbow flower
+// Murakami Flower Plushie - flat rainbow flower cushion
 function MurakamiFlowerModel({ dimensions, isSelected, isHovered }: Omit<FurnitureModelProps, 'type'>) {
-  const { width, height, depth } = dimensions;
+  const { width, height } = dimensions;
   const texture = useTexture('/covers/murakami.png');
   
   return (
     <group>
-      {/* Flat plushie base */}
+      {/* Just the flower image as a flat plane laying on surface */}
       <mesh position={[0, height / 2, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[width / 2, width / 2, height, 32]} />
-        <meshStandardMaterial color="#FFD700" />
-      </mesh>
-      {/* Flower image on top */}
-      <mesh position={[0, height + 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[width * 0.98, depth * 0.98]} />
-        <meshBasicMaterial map={texture} transparent />
+        <planeGeometry args={[width, width]} />
+        <meshBasicMaterial map={texture} transparent side={2} />
       </mesh>
       {/* Selection highlight */}
       {(isSelected || isHovered) && (
-        <mesh position={[0, height / 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[width / 2 + 0.01, width / 2 + 0.01, height + 0.01, 32]} />
+        <mesh position={[0, height / 2 + 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[width / 2 + 0.01, 32]} />
           <meshBasicMaterial color={isSelected ? '#007AFF' : '#5AC8FA'} transparent opacity={0.3} />
         </mesh>
       )}
