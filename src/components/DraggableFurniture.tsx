@@ -32,6 +32,7 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     gridSize,
     roomDimensions,
     furniture,
+    isDragging: globalIsDragging,
     setIsDragging: setGlobalDragging,
     detailModeTarget,
     saveForUndo,
@@ -265,6 +266,16 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
   const bind = useDrag(
     ({ active, first, memo, event }) => {
       if (first) {
+        // Stop event propagation to prevent dragging items underneath
+        if (event) {
+          (event as PointerEvent).stopPropagation?.();
+        }
+        
+        // If another item is already being dragged, don't start dragging this one
+        if (globalIsDragging) {
+          return memo;
+        }
+        
         setIsDragging(true);
         setGlobalDragging(true); // Disable camera controls
         setSelectedId(item.id);
@@ -274,20 +285,28 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
       }
       
       if (!active) {
-        // On drop - check if we can place here
-        const collision = checkCollision(item.position[0], item.position[1], item.position[2]);
-        
-        if (collision && memo?.startPos) {
-          // Can't place here - revert to starting position
-          updateFurniturePosition(item.id, memo.startPos);
-        } else {
-          // Successfully placed! Play the pop sound
-          playPlaceSound();
+        // Only process drop if this item was actually being dragged
+        if (memo?.startPos && isDragging) {
+          // On drop - check if we can place here
+          const collision = checkCollision(item.position[0], item.position[1], item.position[2]);
+          
+          if (collision) {
+            // Can't place here - revert to starting position
+            updateFurniturePosition(item.id, memo.startPos);
+          } else {
+            // Successfully placed! Play the pop sound
+            playPlaceSound();
+          }
+          
+          setIsDragging(false);
+          setGlobalDragging(false); // Re-enable camera controls
+          setHasCollision(false);
         }
-        
-        setIsDragging(false);
-        setGlobalDragging(false); // Re-enable camera controls
-        setHasCollision(false);
+        return memo;
+      }
+      
+      // Only process movement if this item is being dragged
+      if (!isDragging || !memo?.startPos) {
         return memo;
       }
       
