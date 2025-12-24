@@ -29,13 +29,26 @@ const Scene = dynamic(() => import('@/components/Scene').then(mod => ({ default:
 export default function Home() {
   const [currentView, setCurrentView] = useState<'perspective' | 'top' | 'front' | 'side'>('perspective');
   const [showMakerspace, setShowMakerspace] = useState(false);
-  const { roomDimensions } = useRoomStore();
+  const { roomDimensions, undo, canUndo } = useRoomStore();
   const { selectedForPlacement, loadLibrary } = useMakerspaceStore();
   
   // Load makerspace library on mount
   useEffect(() => {
     loadLibrary();
   }, [loadLibrary]);
+  
+  // Keyboard shortcut for undo (Ctrl+Z / Cmd+Z)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        if (canUndo) undo();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, canUndo]);
   
   return (
     <main className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30">
@@ -113,6 +126,25 @@ export default function Home() {
             </div>
           </div>
         )}
+        
+        {/* Undo Button - Bottom left */}
+        <div className="absolute bottom-5 left-80">
+          <button
+            onClick={undo}
+            disabled={!canUndo}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+              canUndo 
+                ? 'bg-white/90 hover:bg-white shadow-lg hover:shadow-xl text-stone-700 hover:scale-105 active:scale-95' 
+                : 'bg-stone-200/50 text-stone-400 cursor-not-allowed'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a5 5 0 015 5v2M3 10l4-4m-4 4l4 4" />
+            </svg>
+            <span className="text-sm font-medium">Undo</span>
+            <kbd className="px-1.5 py-0.5 bg-stone-100 rounded text-[10px] text-stone-500 ml-1">⌘Z</kbd>
+          </button>
+        </div>
         
         {/* Keyboard shortcuts hint - Bottom center */}
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2">

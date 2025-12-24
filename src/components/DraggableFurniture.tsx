@@ -34,6 +34,7 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     furniture,
     setIsDragging: setGlobalDragging,
     detailModeTarget,
+    saveForUndo,
   } = useRoomStore();
   
   // Check if we're in detail edit mode
@@ -52,6 +53,7 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isSelected && (e.key === 'Delete' || e.key === 'Backspace')) {
         e.preventDefault();
+        saveForUndo();
         removeFurniture(item.id);
       }
     };
@@ -266,6 +268,7 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
         setIsDragging(true);
         setGlobalDragging(true); // Disable camera controls
         setSelectedId(item.id);
+        saveForUndo(); // Save state for undo
         // Store the starting position to revert to if placement is invalid
         return { startPos: [...item.position] as [number, number, number] };
       }

@@ -64,6 +64,7 @@ export function Sidebar() {
     importRoom,
     clearRoom,
     setDetailModeTarget,
+    saveForUndo,
   } = useRoomStore();
   
   const [activeTab, setActiveTab] = useState<'furniture' | 'room' | 'settings'>('furniture');
@@ -86,6 +87,7 @@ export function Sidebar() {
   };
   
   const handleAddFurniture = (type: FurnitureType) => {
+    saveForUndo(); // Save state for undo
     const catalog = FURNITURE_CATALOG[type];
     addFurniture({
       type,
@@ -199,7 +201,7 @@ export function Sidebar() {
                     <h3 className="font-bold text-stone-800">{selectedFurniture.name}</h3>
                   </div>
                   <button
-                    onClick={() => removeFurniture(selectedId!)}
+                    onClick={() => { saveForUndo(); removeFurniture(selectedId!); }}
                     className="text-red-500 hover:text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors"
                   >
                     Delete
