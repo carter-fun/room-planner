@@ -81,6 +81,12 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
     const smallTypes = ['book', 'book_stack', 'manga', 'gojo_manga', 'kaws_figure', 'murakami_flower', 'picture_frame', 'vase', 'lamp_small', 'clock', 'trophy', 'plant'];
     return smallTypes.includes(type);
   }, []);
+
+  // Check if this is a wall-mounted item
+  const isWallMounted = useCallback((type: string): boolean => {
+    const wallTypes = ['tv_wall', 'mirror', 'picture_frame'];
+    return wallTypes.includes(type);
+  }, []);
   
   // Snap position to grid - much finer for small items
   const snapToGrid = useCallback((value: number) => {
@@ -336,47 +342,82 @@ export function DraggableFurniture({ item }: DraggableFurnitureProps) {
       const mouseX = ((event as PointerEvent).clientX - rect.left) / rect.width * 2 - 1;
       const mouseY = -((event as PointerEvent).clientY - rect.top) / rect.height * 2 + 1;
       
-      // For small items, first find position on floor plane, then check for furniture surfaces
-      const isMyItemSmall = isSmallItem(item.type);
-      const searchY = isMyItemSmall ? 0 : item.position[1];
+      // Check if this is a wall-mounted item
+      const isWallItem = isWallMounted(item.type);
       
-      // Find position on a plane at the search height
-      const pos = findPositionAtHeight(mouseX, mouseY, searchY);
-      
-      if (pos) {
-        let newX = snapToGrid(pos.x);
-        let newZ = snapToGrid(pos.z);
+      if (isWallItem) {
+        // Wall-mounted items: move on horizontal plane but keep elevated Y
+        raycaster.current.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera);
         
-        // In detail mode, constrain to target furniture bounds
-        if (isInDetailMode && targetFurniture) {
-          const halfW = targetFurniture.dimensions.width / 2 - item.dimensions.width / 2 - 0.02;
-          const halfD = targetFurniture.dimensions.depth / 2 - item.dimensions.depth / 2 - 0.02;
+        // Use horizontal plane at current Y height for X/Z movement
+        const horizontalPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -item.position[1]);
+        const intersectPoint = new THREE.Vector3();
+        
+        if (raycaster.current.ray.intersectPlane(horizontalPlane, intersectPoint)) {
+          let newX = snapToGrid(intersectPoint.x);
+          let newZ = snapToGrid(intersectPoint.z);
+          let newY = item.position[1]; // Keep Y position (wall height)
           
-          newX = Math.max(
-            targetFurniture.position[0] - halfW,
-            Math.min(targetFurniture.position[0] + halfW, newX)
-          );
-          newZ = Math.max(
-            targetFurniture.position[2] - halfD,
-            Math.min(targetFurniture.position[2] + halfD, newZ)
-          );
-        } else {
-          // Normal mode - clamp within room bounds
-          [newX, newZ] = clampPosition(newX, newZ);
+          // Clamp within room bounds
+          const roomHalfWidth = roomDimensions.width / 2;
+          const roomHalfLength = roomDimensions.length / 2;
+          const halfWidth = item.dimensions.width / 2;
+          const halfDepth = item.dimensions.depth / 2;
+          
+          newX = Math.max(-roomHalfWidth + halfWidth + 0.02, Math.min(roomHalfWidth - halfWidth - 0.02, newX));
+          newZ = Math.max(-roomHalfLength + halfDepth + 0.02, Math.min(roomHalfLength - halfDepth - 0.02, newZ));
+          
+          // Move the item
+          updateFurniturePosition(item.id, [newX, newY, newZ]);
+          
+          // Check collision for visual feedback
+          const collision = checkCollision(newX, newY, newZ);
+          setHasCollision(collision);
         }
+      } else {
+        // Regular floor items
+        // For small items, first find position on floor plane, then check for furniture surfaces
+        const isMyItemSmall = isSmallItem(item.type);
+        const searchY = isMyItemSmall ? 0 : item.position[1];
         
-        // For small items, find the best surface (furniture top or floor)
-        let newY = item.position[1];
-        if (isMyItemSmall && !isInDetailMode) {
-          newY = findSurfaceY(newX, newZ, item.dimensions.width, item.dimensions.depth);
+        // Find position on a plane at the search height
+        const pos = findPositionAtHeight(mouseX, mouseY, searchY);
+        
+        if (pos) {
+          let newX = snapToGrid(pos.x);
+          let newZ = snapToGrid(pos.z);
+          
+          // In detail mode, constrain to target furniture bounds
+          if (isInDetailMode && targetFurniture) {
+            const halfW = targetFurniture.dimensions.width / 2 - item.dimensions.width / 2 - 0.02;
+            const halfD = targetFurniture.dimensions.depth / 2 - item.dimensions.depth / 2 - 0.02;
+            
+            newX = Math.max(
+              targetFurniture.position[0] - halfW,
+              Math.min(targetFurniture.position[0] + halfW, newX)
+            );
+            newZ = Math.max(
+              targetFurniture.position[2] - halfD,
+              Math.min(targetFurniture.position[2] + halfD, newZ)
+            );
+          } else {
+            // Normal mode - clamp within room bounds
+            [newX, newZ] = clampPosition(newX, newZ);
+          }
+          
+          // For small items, find the best surface (furniture top or floor)
+          let newY = item.position[1];
+          if (isMyItemSmall && !isInDetailMode) {
+            newY = findSurfaceY(newX, newZ, item.dimensions.width, item.dimensions.depth);
+          }
+          
+          // Move the item
+          updateFurniturePosition(item.id, [newX, newY, newZ]);
+          
+          // Check collision for visual feedback only
+          const collision = checkCollision(newX, newY, newZ);
+          setHasCollision(collision);
         }
-        
-        // Move the item
-        updateFurniturePosition(item.id, [newX, newY, newZ]);
-        
-        // Check collision for visual feedback only
-        const collision = checkCollision(newX, newY, newZ);
-        setHasCollision(collision);
       }
       
       return memo;

@@ -717,13 +717,13 @@ export function Makerspace() {
                 <h4 className="font-medium text-gray-800 mb-2">🎨 How It Works</h4>
                 <ol className="text-sm text-gray-500 space-y-2">
                   <li>1. 📸 Upload a photo of your furniture</li>
-                  <li>2. 🎨 AI converts it to a real 3D model (2-5 min)</li>
+                  <li>2. 🎨 AI converts it to a real 3D model (10-20 sec)</li>
                   <li>3. 📦 Model saves to your Makerspace library</li>
                   <li>4. ✨ Place YOUR furniture in the 3D room!</li>
                 </ol>
                 <p className="text-xs text-gray-400 mt-3 border-t border-gray-200 pt-3">
                   💡 Photos of single items work best. Get free API key at{' '}
-                  <a href="https://meshy.ai" target="_blank" rel="noopener noreferrer" className="text-cyan-500 underline">meshy.ai</a>
+                  <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-cyan-500 underline">OpenAI</a>
                 </p>
               </div>
             )}

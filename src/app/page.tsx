@@ -34,7 +34,7 @@ export default function Home() {
   const [hasEntered, setHasEntered] = useState(false);
   const [currentView, setCurrentView] = useState<'perspective' | 'top' | 'front' | 'side'>('perspective');
   const [showMakerspace, setShowMakerspace] = useState(false);
-  const { roomDimensions, undo, canUndo } = useRoomStore();
+  const { roomDimensions, undo, canUndo, detailModeTarget } = useRoomStore();
   const { selectedForPlacement, loadLibrary } = useMakerspaceStore();
   
   // Load makerspace library on mount
@@ -75,32 +75,23 @@ export default function Home() {
     return <LandingPage onEnter={() => setHasEntered(true)} />;
   }
   
+  // If in detail mode, ONLY show the detail editor - nothing else
+  if (detailModeTarget) {
+    return <DetailEditMode />;
+  }
+  
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="flex flex-col h-screen">
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <SidebarTrigger className="-ml-1" />
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-              <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Room Size</p>
-              <p className="text-sm font-semibold">
-                {roomDimensions.width} × {roomDimensions.length} × {roomDimensions.height}m
-              </p>
-            </div>
-          </div>
           
           <div className="flex-1" />
           
           {/* User info */}
           {user && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/50">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/50 border border-border">
               {user.picture && (
                 <img src={user.picture} alt="" className="w-6 h-6 rounded-full" />
               )}
@@ -114,7 +105,7 @@ export default function Home() {
           {/* Makerspace Toggle */}
           <button
             onClick={() => setShowMakerspace(!showMakerspace)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-accent ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-accent border border-border ${
               showMakerspace ? 'bg-accent ring-2 ring-amber-400' : ''
             } ${selectedForPlacement ? 'ring-2 ring-green-400 animate-pulse' : ''}`}
           >
@@ -123,7 +114,7 @@ export default function Home() {
           </button>
           
           {/* View Mode */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent border border-border">
             <div className="w-2 h-2 rounded-full bg-green-500" />
             <span className="text-sm font-medium capitalize">{currentView}</span>
           </div>
@@ -132,7 +123,7 @@ export default function Home() {
           <button
             onClick={undo}
             disabled={!canUndo}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all border border-border ${
               canUndo 
                 ? 'bg-accent hover:bg-accent/80 text-foreground' 
                 : 'text-muted-foreground cursor-not-allowed opacity-50'
@@ -224,9 +215,6 @@ export default function Home() {
           onClick={() => setShowMakerspace(false)}
         />
       )}
-      
-      {/* Detail Edit Mode Overlay */}
-      <DetailEditMode />
     </SidebarProvider>
   );
 }

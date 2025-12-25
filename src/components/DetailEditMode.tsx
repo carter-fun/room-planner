@@ -7,6 +7,23 @@ import * as THREE from 'three';
 import { useRoomStore, FURNITURE_CATALOG, FurnitureType, BookOrientation, SPINE_COLORS } from '@/store/roomStore';
 import { FurnitureModel } from './FurnitureModels';
 import { DraggableFurniture } from './DraggableFurniture';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarInset,
+  SidebarSeparator,
+} from '@/components/ui/sidebar';
+import { ChevronDown, Undo2, AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 // Small items that can be placed on furniture
 const SMALL_ITEMS: FurnitureType[] = [
@@ -468,281 +485,283 @@ export function DetailEditMode() {
   };
   
   if (!detailModeTarget || !targetFurniture) return null;
+
+  // Helper to get item icon
+  const getItemIcon = (type: FurnitureType) => {
+    const icons: Record<string, string> = {
+      'book': '📕', 'book_stack': '📚', 'manga': '📖', 'gojo_manga': '👁️',
+      'kaws_figure': '🤖', 'murakami_flower': '🌸', 'picture_frame': '🖼️',
+      'vase': '🏺', 'lamp_small': '💡', 'clock': '🕐', 'trophy': '🏆', 'plant': '🪴'
+    };
+    return icons[type] || '📦';
+  };
   
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex">
-      {/* Left Panel - Small Items */}
-      <div className="w-80 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-white/10 flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <span className="text-lg">✨</span>
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-white">Detail Editor</h2>
-              <p className="text-xs text-slate-400">
-                {targetFurniture.name}
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Instructions */}
-        <div className="mx-4 mt-4 p-3 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-xl border border-violet-500/30 backdrop-blur">
-          <p className="text-sm text-violet-200 flex items-center gap-2">
-            <span>💫</span> Drag items onto the furniture
-          </p>
-        </div>
-        
-        {/* Book Orientation Controls - only show when a book is selected */}
-        {isSelectedBook && selectedItem && (
-          <div className="mx-4 mt-4">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <span className="w-4 h-px bg-gradient-to-r from-amber-500 to-transparent"></span>
-              Orientation
-              <span className="flex-1 h-px bg-gradient-to-r from-amber-500 to-transparent"></span>
-            </h3>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { value: 'upright' as BookOrientation, icon: '📕', label: 'Upright' },
-                { value: 'flat' as BookOrientation, icon: '📖', label: 'Flat' },
-                { value: 'faceout' as BookOrientation, icon: '🖼️', label: 'Face Out' },
-              ].map(({ value, icon, label }) => (
-                <button
-                  key={value}
-                  onClick={() => updateFurnitureOrientation(selectedItem.id, value)}
-                  className={`p-2 rounded-xl text-center transition-all ${
-                    selectedItem.orientation === value
-                      ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-white/5'
-                  }`}
-                >
-                  <span className="text-lg block">{icon}</span>
-                  <span className="text-[10px] font-medium">{label}</span>
-                </button>
-              ))}
-            </div>
-            
-            {/* Spine Color Picker */}
-            <div className="mt-3">
-              <p className="text-[10px] text-slate-400 mb-2">Spine Color</p>
-              <div className="flex flex-wrap gap-1.5">
-                {SPINE_COLORS.slice(0, 12).map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => updateFurnitureSpineColor(selectedItem.id, c)}
-                    className={`w-6 h-6 rounded-md transition-transform hover:scale-110 ${
-                      selectedItem.spineColor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-800' : ''
-                    }`}
-                    style={{ backgroundColor: c }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Arrangement Presets - ONLY for bookshelves */}
-        {isTargetBookshelf && (
-          <div className="mx-4 mt-4">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <span className="w-4 h-px bg-gradient-to-r from-cyan-500 to-transparent"></span>
-              Arrangements
-              <span className="flex-1 h-px bg-gradient-to-r from-cyan-500 to-transparent"></span>
-            </h3>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={arrangeShrine}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 border border-white/5 hover:border-cyan-500/30 transition-all group"
-              >
-                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">🏛️</span>
-                <span className="text-[10px] text-slate-400 group-hover:text-cyan-300">Shrine</span>
-              </button>
-              <button
-                onClick={arrangeRow}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 border border-white/5 hover:border-cyan-500/30 transition-all group"
-              >
-                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">📚</span>
-                <span className="text-[10px] text-slate-400 group-hover:text-cyan-300">Row</span>
-              </button>
-              <button
-                onClick={arrangeStack}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 border border-white/5 hover:border-cyan-500/30 transition-all group"
-              >
-                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">📦</span>
-                <span className="text-[10px] text-slate-400 group-hover:text-cyan-300">Stack</span>
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {/* Auto-Arrange Tools - ONLY for bookshelves */}
-        {isTargetBookshelf && (
-          <div className="mx-4 mt-4">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <span className="w-4 h-px bg-gradient-to-r from-pink-500 to-transparent"></span>
-              Tools
-              <span className="flex-1 h-px bg-gradient-to-r from-pink-500 to-transparent"></span>
-            </h3>
-            <div className="flex gap-2">
-              <button
-                onClick={alignBooks}
-                className="flex-1 p-2.5 rounded-xl bg-slate-800/80 hover:bg-pink-500/20 border border-white/5 hover:border-pink-500/30 transition-all group"
-              >
-                <span className="text-sm block mb-0.5">⬅️➡️</span>
-                <span className="text-[10px] text-slate-400 group-hover:text-pink-300">Align</span>
-              </button>
-              <button
-                onClick={spaceEvenly}
-                className="flex-1 p-2.5 rounded-xl bg-slate-800/80 hover:bg-pink-500/20 border border-white/5 hover:border-pink-500/30 transition-all group"
-              >
-                <span className="text-sm block mb-0.5">↔️</span>
-                <span className="text-[10px] text-slate-400 group-hover:text-pink-300">Space</span>
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {/* Undo Button */}
-        <div className="mx-4 mt-4">
-          <button
-            onClick={undo}
-            disabled={!canUndo}
-            className={`w-full p-2.5 rounded-xl border transition-all flex items-center justify-center gap-2 ${
-              canUndo 
-                ? 'bg-slate-800/80 hover:bg-orange-500/20 border-white/5 hover:border-orange-500/30 text-slate-300 hover:text-orange-300' 
-                : 'bg-slate-800/40 border-white/5 text-slate-600 cursor-not-allowed'
-            }`}
-          >
-            <span className="text-lg">↩️</span>
-            <span className="text-xs font-medium">Undo</span>
-          </button>
-        </div>
-        
-        {/* Small Items Grid */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <span className="w-8 h-px bg-gradient-to-r from-slate-500 to-transparent"></span>
-            Items
-            <span className="flex-1 h-px bg-gradient-to-r from-slate-500 to-transparent"></span>
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {SMALL_ITEMS.map(type => {
-              const catalog = FURNITURE_CATALOG[type];
-              if (!catalog) return null;
-              
-              const isActive = draggingItem === type;
-              
-              return (
-                <div
-                  key={type}
-                  draggable
-                  onDragStart={(e) => handleDragStart(type, e)}
-                  onDragEnd={() => setDraggingItem(null)}
-                  className={`group relative p-4 rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 ${
-                    isActive 
-                      ? 'bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-purple-500/40 scale-95' 
-                      : 'bg-slate-800/80 hover:bg-slate-700/80 border border-white/5 hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/10'
-                  }`}
-                >
-                  <div className={`text-3xl mb-2 transition-transform group-hover:scale-110 ${isActive ? '' : 'grayscale-0'}`}>
-                    {type === 'book' && '📕'}
-                    {type === 'book_stack' && '📚'}
-                    {type === 'manga' && '📖'}
-                    {type === 'gojo_manga' && '👁️'}
-                    {type === 'kaws_figure' && '🤖'}
-                    {type === 'murakami_flower' && '🌸'}
-                    {type === 'picture_frame' && '🖼️'}
-                    {type === 'vase' && '🏺'}
-                    {type === 'lamp_small' && '💡'}
-                    {type === 'clock' && '🕐'}
-                    {type === 'trophy' && '🏆'}
-                    {type === 'plant' && '🪴'}
-                  </div>
-                  <div className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                    {catalog.name}
-                  </div>
-                  {/* Shine effect on hover */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+    <SidebarProvider>
+      <Sidebar collapsible="none" className="border-r">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <span className="text-sm">✨</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Detail Editor</span>
+                  <span className="truncate text-xs">{targetFurniture.name}</span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
         
-        {/* Exit Button */}
-        <div className="p-4 border-t border-white/10">
-          <button
-            onClick={() => setDetailModeTarget(null)}
-            className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
-          >
-            <span>✓</span> Done Editing
-          </button>
-        </div>
-      </div>
+        <SidebarContent>
+          {/* Book Controls - Collapsible */}
+          {isSelectedBook && selectedItem && (
+            <Collapsible defaultOpen className="group/collapsible">
+              <SidebarGroup>
+                <SidebarGroupLabel asChild>
+                  <CollapsibleTrigger className="flex w-full items-center">
+                    Book Controls
+                    <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {[
+                        { value: 'upright' as BookOrientation, icon: '📕', label: 'Upright' },
+                        { value: 'flat' as BookOrientation, icon: '📖', label: 'Flat' },
+                        { value: 'faceout' as BookOrientation, icon: '🖼️', label: 'Face Out' },
+                      ].map(({ value, icon, label }) => (
+                        <SidebarMenuItem key={value}>
+                          <SidebarMenuButton
+                            onClick={() => updateFurnitureOrientation(selectedItem.id, value)}
+                            isActive={selectedItem.orientation === value}
+                          >
+                            <span>{icon}</span>
+                            <span>{label}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                    
+                    <div className="mt-3 px-2">
+                      <p className="text-xs text-muted-foreground mb-2">Spine Color</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {SPINE_COLORS.slice(0, 12).map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => updateFurnitureSpineColor(selectedItem.id, c)}
+                            className={`w-5 h-5 rounded transition-transform hover:scale-110 ${
+                              selectedItem.spineColor === c ? 'ring-2 ring-sidebar-ring ring-offset-1' : 'border border-sidebar-border'
+                            }`}
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          )}
+          
+          {/* Arrangements - Collapsible (only for bookshelves) */}
+          {isTargetBookshelf && (
+            <Collapsible defaultOpen className="group/collapsible">
+              <SidebarGroup>
+                <SidebarGroupLabel asChild>
+                  <CollapsibleTrigger className="flex w-full items-center">
+                    Arrangements
+                    <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton onClick={arrangeShrine}>
+                          <span>🏛️</span>
+                          <span>Shrine</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton onClick={arrangeRow}>
+                          <span>📚</span>
+                          <span>Row</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton onClick={arrangeStack}>
+                          <span>📦</span>
+                          <span>Stack</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          )}
+          
+          {/* Tools */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Tools</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {isTargetBookshelf && (
+                  <>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton onClick={alignBooks}>
+                        <AlignHorizontalDistributeCenter className="size-4" />
+                        <span>Align Books</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton onClick={spaceEvenly}>
+                        <AlignVerticalDistributeCenter className="size-4" />
+                        <span>Space Evenly</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </>
+                )}
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={undo} disabled={!canUndo}>
+                    <Undo2 className="size-4" />
+                    <span>Undo</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          
+          <SidebarSeparator />
+          
+          {/* Items - Collapsible */}
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroup className="flex-1">
+              <SidebarGroupLabel asChild>
+                <CollapsibleTrigger className="flex w-full items-center">
+                  Drag Items
+                  <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {SMALL_ITEMS.map(type => {
+                      const catalog = FURNITURE_CATALOG[type];
+                      if (!catalog) return null;
+                      
+                      const isActive = draggingItem === type;
+                      
+                      return (
+                        <SidebarMenuItem key={type}>
+                          <SidebarMenuButton
+                            draggable
+                            onDragStart={(e) => handleDragStart(type, e as unknown as React.DragEvent)}
+                            onDragEnd={() => setDraggingItem(null)}
+                            isActive={isActive}
+                            className="cursor-grab active:cursor-grabbing"
+                          >
+                            <span className="text-lg">{getItemIcon(type)}</span>
+                            <span>{catalog.name}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        </SidebarContent>
+        
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                size="lg"
+                onClick={() => setDetailModeTarget(null)}
+                className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+              >
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary-foreground/20">
+                  <span>✓</span>
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Done Editing</span>
+                  <span className="truncate text-xs">Return to main view</span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
       
-      {/* 3D View */}
-      <div 
-        ref={canvasContainerRef}
-        className="flex-1 relative"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        {/* Top bar */}
-        <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
-            <span className="text-sm font-medium text-gray-700">
-              🔍 Detail View: {targetFurniture.name}
-            </span>
-          </div>
-          <button
-            onClick={() => setDetailModeTarget(null)}
-            className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg hover:bg-white transition-colors"
-          >
-            <span className="text-sm font-medium text-gray-700">ESC to Exit</span>
-          </button>
-        </div>
-        
-        {/* Drag preview */}
-        {draggingItem && dragPreview && (
-          <div 
-            className="fixed pointer-events-none z-50 bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-lg"
-            style={{ left: dragPreview.x + 10, top: dragPreview.y + 10 }}
-          >
-            {FURNITURE_CATALOG[draggingItem]?.name}
-          </div>
-        )}
-        
-        <Canvas
-          shadows
-          gl={{ antialias: true, preserveDrawingBuffer: true }}
-          dpr={[1, 2]}
-          onPointerMissed={() => setSelectedId(null)}
+      <SidebarInset>
+        {/* 3D View */}
+        <div 
+          ref={canvasContainerRef}
+          className="h-full relative bg-[#f0f4f8]"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          <color attach="background" args={['#f0f4f8']} />
-          <Suspense fallback={null}>
-            <DetailScene 
-              targetId={detailModeTarget} 
-              draggingItem={draggingItem}
-            />
-          </Suspense>
-        </Canvas>
-        
-        {/* Bottom bar */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-xl px-2 py-2 shadow-lg flex items-center gap-3">
-          <span className="text-sm text-gray-600 pl-2">
-            🖱️ Orbit: Left drag • Zoom: Scroll • Pan: Right drag
-          </span>
-          <button
-            onClick={() => setSelectedId(null)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+          {/* Top bar */}
+          <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border">
+              <span className="text-sm font-medium text-foreground">
+                🔍 Detail View: {targetFurniture.name}
+              </span>
+            </div>
+            <button
+              onClick={() => setDetailModeTarget(null)}
+              className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg hover:bg-white transition-colors border"
+            >
+              <span className="text-sm font-medium text-foreground">ESC to Exit</span>
+            </button>
+          </div>
+          
+          {/* Drag preview */}
+          {draggingItem && dragPreview && (
+            <div 
+              className="fixed pointer-events-none z-50 bg-sidebar-primary text-sidebar-primary-foreground px-3 py-1.5 rounded-lg text-sm font-medium shadow-lg"
+              style={{ left: dragPreview.x + 10, top: dragPreview.y + 10 }}
+            >
+              {FURNITURE_CATALOG[draggingItem]?.name}
+            </div>
+          )}
+          
+          <Canvas
+            shadows
+            gl={{ antialias: true, preserveDrawingBuffer: true }}
+            dpr={[1, 2]}
+            onPointerMissed={() => setSelectedId(null)}
           >
-            ✓ Deselect
-          </button>
+            <color attach="background" args={['#f0f4f8']} />
+            <Suspense fallback={null}>
+              <DetailScene 
+                targetId={detailModeTarget} 
+                draggingItem={draggingItem}
+              />
+            </Suspense>
+          </Canvas>
+          
+          {/* Bottom bar */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-xl px-2 py-2 shadow-lg flex items-center gap-3 border">
+            <span className="text-sm text-muted-foreground pl-2">
+              🖱️ Orbit: Left drag • Zoom: Scroll • Pan: Right drag
+            </span>
+            <button
+              onClick={() => setSelectedId(null)}
+              className="bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              ✓ Deselect
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 
