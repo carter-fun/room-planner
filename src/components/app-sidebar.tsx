@@ -197,7 +197,7 @@ export function AppSidebar() {
             <Home className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold">Room Planner</span>
+            <span className="text-sm font-bold">SpacedAI</span>
             <span className="text-xs text-muted-foreground">Design your space</span>
           </div>
         </div>

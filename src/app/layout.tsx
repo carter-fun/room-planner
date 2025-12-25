@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Room Planner - Design Your Space in 3D",
+  title: "SpacedAI - Design Your Space in 3D",
   description: "Design and visualize your room layout in 3D. Drag and drop furniture to plan your perfect space with professional tools.",
   keywords: ["room planner", "3D design", "interior design", "furniture layout", "home design"],
 };

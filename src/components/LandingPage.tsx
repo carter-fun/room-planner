@@ -92,7 +92,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
 
         {/* Title with Text Generate Effect */}
         <TextGenerateEffect
-          words="Room Planner"
+          words="SpacedAI"
           className="text-center mb-3"
           textClassName="text-5xl md:text-7xl font-bold text-white tracking-tight"
           duration={0.8}

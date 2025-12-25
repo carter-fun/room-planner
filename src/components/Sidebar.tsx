@@ -165,7 +165,7 @@ export function Sidebar() {
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-stone-800">Room Planner</h1>
+            <h1 className="text-lg font-bold text-stone-800">SpacedAI</h1>
             <p className="text-xs text-stone-400">Design your perfect space</p>
           </div>
         </div>
