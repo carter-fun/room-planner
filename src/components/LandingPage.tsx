@@ -148,7 +148,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <Button
                 onClick={handleEnter}
                 size="lg"
-                className="px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+                className="px-8 py-6 text-lg font-semibold rounded-xl !bg-white !text-gray-900 hover:!bg-white/90 shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-black/30 transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Enter
                 <svg className="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -174,7 +174,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             <Button
               asChild
               size="lg"
-              className="px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+              className="px-8 py-6 text-lg font-semibold rounded-xl !bg-white !text-gray-900 hover:!bg-white/90 shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-black/30 transition-all duration-300 hover:scale-105 active:scale-95"
             >
               <a href="/auth/login">
                 <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
