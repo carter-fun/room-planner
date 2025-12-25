@@ -20,9 +20,7 @@ export function Makerspace() {
   const [activeTab, setActiveTab] = useState<TabType>('library');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
-  const [lumaProgress, setLumaProgress] = useState<{ stage: string; progress: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   
   // Experiment state
@@ -30,10 +28,16 @@ export function Makerspace() {
   const [experimentAnalysis, setExperimentAnalysis] = useState<RoomAnalysis | null>(null);
   const [experimentLoading, setExperimentLoading] = useState(false);
   const [experimentError, setExperimentError] = useState<string | null>(null);
-  const [openaiApiKey, setOpenaiApiKey] = useState<string>(() => 
-    typeof window !== 'undefined' ? localStorage.getItem('openai-api-key') || '' : ''
-  );
+  const [openaiApiKey, setOpenaiApiKey] = useState<string>('');
   const [selectedDetectedItems, setSelectedDetectedItems] = useState<Set<number>>(new Set());
+  
+  // Load OpenAI API key from localStorage on mount (avoids SSR issues)
+  useEffect(() => {
+    const savedKey = localStorage.getItem('openai-api-key');
+    if (savedKey) {
+      setOpenaiApiKey(savedKey);
+    }
+  }, []);
   
   
   const {
@@ -45,9 +49,6 @@ export function Makerspace() {
     removeItem,
     selectForPlacement,
     selectedForPlacement,
-    lumaApiKey,
-    setLumaApiKey,
-    lumaJobs,
     clearError,
   } = useMakerspaceStore();
   
@@ -134,59 +135,6 @@ export function Makerspace() {
     }
   };
   
-  // Handle video upload for Luma AI
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !lumaApiKey) return;
-    
-    const title = file.name.replace(/\.[^/.]+$/, '');
-    
-    try {
-      setLumaProgress({ stage: 'Starting...', progress: 0 });
-      
-      const glbData = await processVideoToGlb(
-        lumaApiKey,
-        file,
-        title,
-        (stage, progress) => setLumaProgress({ stage, progress })
-      );
-      
-      // Load and process the GLB
-      const scene = await loadGLBFromArrayBuffer(glbData);
-      const { dimensions } = normalizeModel(scene, 1);
-      const isRoom = detectRoomScan(scene);
-      
-      let thumbnail: string | undefined;
-      try {
-        thumbnail = await generateModelThumbnail(scene);
-      } catch (e) {
-        console.warn('Failed to generate thumbnail:', e);
-      }
-      
-      await addItem(
-        {
-          name: title,
-          type: isRoom ? 'room' : 'item',
-          dimensions,
-          thumbnail,
-          source: 'luma',
-        },
-        glbData
-      );
-      
-      setLumaProgress(null);
-    } catch (error) {
-      console.error('Luma AI error:', error);
-      alert(`Failed to process video: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setLumaProgress(null);
-    }
-    
-    // Reset input
-    if (videoInputRef.current) {
-      videoInputRef.current.value = '';
-    }
-  };
-  
   // Place item in room
   const handlePlaceItem = (item: MakerspaceItem) => {
     selectForPlacement(item.id);
@@ -202,8 +150,6 @@ export function Makerspace() {
       });
     }
   };
-  
-  // Validate and save Luma API key
 
   // Experiment: Photo upload and analysis
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

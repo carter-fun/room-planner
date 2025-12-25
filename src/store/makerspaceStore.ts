@@ -12,25 +12,11 @@ export interface MakerspaceItem extends StoredModel {
   blobUrl?: string; // Runtime URL for Three.js loading
 }
 
-export interface LumaJob {
-  id: string;
-  captureId: string;
-  status: 'uploading' | 'processing' | 'completed' | 'failed';
-  progress: number;
-  name: string;
-  error?: string;
-  createdAt: number;
-}
-
 interface MakerspaceState {
   // Library
   items: MakerspaceItem[];
   isLoading: boolean;
   error: string | null;
-  
-  // Luma AI Jobs
-  lumaJobs: LumaJob[];
-  lumaApiKey: string | null;
   
   // Selected item for placement
   selectedForPlacement: string | null;
@@ -45,12 +31,6 @@ interface MakerspaceState {
   updateItem: (id: string, updates: Partial<StoredModel>) => Promise<void>;
   getItemBlobUrl: (id: string) => Promise<string | null>;
   
-  // Luma AI
-  setLumaApiKey: (key: string) => void;
-  addLumaJob: (job: Omit<LumaJob, 'id' | 'createdAt'>) => string;
-  updateLumaJob: (id: string, updates: Partial<LumaJob>) => void;
-  removeLumaJob: (id: string) => void;
-  
   // Placement
   selectForPlacement: (id: string | null) => void;
   
@@ -64,8 +44,6 @@ export const useMakerspaceStore = create<MakerspaceState>((set, get) => ({
   items: [],
   isLoading: false,
   error: null,
-  lumaJobs: [],
-  lumaApiKey: typeof window !== 'undefined' ? localStorage.getItem('luma-api-key') : null,
   selectedForPlacement: null,
   
   loadLibrary: async () => {
@@ -166,39 +144,9 @@ export const useMakerspaceStore = create<MakerspaceState>((set, get) => ({
     return blobUrl;
   },
   
-  setLumaApiKey: (key) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('luma-api-key', key);
-    }
-    set({ lumaApiKey: key });
-  },
-  
-  addLumaJob: (job) => {
-    const id = `job_${Date.now()}`;
-    const newJob: LumaJob = { ...job, id, createdAt: Date.now() };
-    set((state) => ({ lumaJobs: [newJob, ...state.lumaJobs] }));
-    return id;
-  },
-  
-  updateLumaJob: (id, updates) => {
-    set((state) => ({
-      lumaJobs: state.lumaJobs.map(job =>
-        job.id === id ? { ...job, ...updates } : job
-      ),
-    }));
-  },
-  
-  removeLumaJob: (id) => {
-    set((state) => ({
-      lumaJobs: state.lumaJobs.filter(job => job.id !== id),
-    }));
-  },
-  
   selectForPlacement: (id) => {
     set({ selectedForPlacement: id });
   },
   
   clearError: () => set({ error: null }),
 }));
-
-

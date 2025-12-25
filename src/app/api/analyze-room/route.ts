@@ -137,7 +137,7 @@ async function callOpenAIWithRetry(
       if (response.status === 429) {
         if (attempt < maxRetries - 1) {
           const waitTime = (attempt + 1) * 5000; // 5s, 10s
-          console.log(`Rate limited, waiting ${waitTime}ms before retry ${attempt + 1}/${maxRetries}`);
+          // Rate limited, waiting before retry
           await new Promise(resolve => setTimeout(resolve, waitTime));
           continue;
         }
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('OpenAI API error:', errorData);
+      // OpenAI API error logged server-side only
       
       // Provide user-friendly error messages
       let errorMessage = 'API error';
@@ -223,14 +223,14 @@ export async function POST(request: NextRequest) {
       const analysis: RoomAnalysis = JSON.parse(jsonContent.trim());
       return NextResponse.json(analysis);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', content);
+      // Failed to parse AI response
       return NextResponse.json(
         { error: 'Failed to parse AI response', raw: content },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Error analyzing room:', error);
+    // Error analyzing room logged server-side only
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
