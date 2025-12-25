@@ -24,7 +24,13 @@ export function LandingPage({ onEnter }: LandingPageProps) {
   const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
 
   const handleEnter = () => {
-    onEnter();
+    // Only allow entry if user is logged in
+    if (user) {
+      onEnter();
+    } else {
+      // Redirect to login
+      window.location.href = '/auth/login';
+    }
   };
 
   const handleAIScan = () => {
@@ -124,57 +130,60 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             </a>
           </div>
         ) : (
-          <div className="mb-8 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
-              <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-white/60 text-sm">
-                Login to save and sync designs
-              </span>
-            </div>
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/50"
-            >
-              <a href="/auth/login">
-                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Login with Auth0
-              </a>
-            </Button>
+          <div className="mb-8 flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
+            <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-white/60 text-sm">
+              Login required to access the app
+            </span>
           </div>
         )}
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
-          {/* Enter Button */}
-          <Button
-            onClick={handleEnter}
-            size="lg"
-            className="px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            Enter
-            <svg className="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Button>
+          {user ? (
+            <>
+              {/* Enter Button - Only for logged in users */}
+              <Button
+                onClick={handleEnter}
+                size="lg"
+                className="px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                Enter
+                <svg className="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Button>
 
-          {/* AI Scan Button */}
-          <Button
-            onClick={handleAIScan}
-            variant="outline"
-            size="lg"
-            className="px-8 py-6 text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/50 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            AI Scan Setup
-          </Button>
+              {/* AI Scan Button */}
+              <Button
+                onClick={handleAIScan}
+                variant="outline"
+                size="lg"
+                className="px-8 py-6 text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/50 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                AI Scan Setup
+              </Button>
+            </>
+          ) : (
+            /* Login Button - For non-logged in users */
+            <Button
+              asChild
+              size="lg"
+              className="px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              <a href="/auth/login">
+                <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Login to Enter
+              </a>
+            </Button>
+          )}
         </div>
 
         {/* Features hint */}
