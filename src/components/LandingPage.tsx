@@ -86,11 +86,12 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             {user.name || user.email}
           </span>
           <a 
-            href="/auth/logout?returnTo=/"
+            href="/auth/logout"
             className="text-white/60 hover:text-white/90 text-xs ml-2 transition-colors cursor-pointer pointer-events-auto"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
-              window.location.href = '/auth/logout?returnTo=/';
+              window.location.href = `/auth/logout?returnTo=${encodeURIComponent(window.location.origin)}`;
             }}
           >
             Logout
