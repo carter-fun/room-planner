@@ -48,7 +48,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
   return (
     <div className="relative w-full h-screen overflow-y-auto overflow-x-hidden" style={{ overflowY: 'auto' }}>
       {/* LiquidEther Background - FIXED so it stays when scrolling */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <LiquidEther
           colors={['#5a3d8a', '#3d6098', '#7b4db8']}
           mouseForce={20}
@@ -70,11 +70,11 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       </div>
 
       {/* Dark overlay for better text readability - also FIXED */}
-      <div className="fixed inset-0 bg-black/30 z-0" />
+      <div className="fixed inset-0 bg-black/30 z-0 pointer-events-none" />
 
       {/* User info - Top Right */}
       {user && (
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
           {user.picture && (
             <img 
               src={user.picture} 
@@ -87,7 +87,11 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </span>
           <a 
             href="/auth/logout?returnTo=/"
-            className="text-white/60 hover:text-white/90 text-xs ml-2 transition-colors"
+            className="text-white/60 hover:text-white/90 text-xs ml-2 transition-colors cursor-pointer pointer-events-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = '/auth/logout?returnTo=/';
+            }}
           >
             Logout
           </a>
