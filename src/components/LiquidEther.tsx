@@ -570,7 +570,8 @@ export default function LiquidEther({
           this.scene.add(this.plane);
         }
       }
-      update() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+      update(_args?: any) {
         Common.renderer!.setRenderTarget(this.props.output || null);
         Common.renderer!.render(this.scene!, this.camera!);
         Common.renderer!.setRenderTarget(null);
