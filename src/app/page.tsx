@@ -96,7 +96,7 @@ export default function Home() {
                 <img src={user.picture} alt="" className="w-6 h-6 rounded-full" />
               )}
               <span className="text-xs text-muted-foreground">{user.name || user.email}</span>
-              <a href="/auth/logout" className="text-xs text-muted-foreground hover:text-foreground">
+              <a href="/auth/logout?returnTo=/" className="text-xs text-muted-foreground hover:text-foreground">
                 Logout
               </a>
             </div>

@@ -86,7 +86,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             {user.name || user.email}
           </span>
           <a 
-            href="/auth/logout"
+            href="/auth/logout?returnTo=/"
             className="text-white/60 hover:text-white/90 text-xs ml-2 transition-colors"
           >
             Logout
