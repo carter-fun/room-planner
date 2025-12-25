@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import { Providers } from '@/components/Providers';
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 // DM Sans - Modern, geometric, distinctive (not the typical AI font)
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
